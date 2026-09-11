@@ -1,7 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+
+const ERROR_MESSAGES: Record<string, string> = {
+  missing_code: "El enlace no traía código de acceso. Pide uno nuevo.",
+  exchange_failed: "El enlace expiró o ya fue usado. Pide uno nuevo.",
+};
+
+function UrlError() {
+  const params = useSearchParams();
+  const code = params.get("error");
+  if (!code) return null;
+  return (
+    <p className="mt-4 rounded-xl bg-red-100 p-3 text-center text-sm text-red-800 dark:bg-red-950 dark:text-red-300">
+      {ERROR_MESSAGES[code] ?? "No se pudo completar el inicio de sesión."}
+    </p>
+  );
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -29,6 +46,9 @@ export default function LoginPage() {
       <p className="mt-2 text-center text-zinc-600 dark:text-zinc-400">
         Tus rutinas diarias, con timer de enfoque y rachas.
       </p>
+      <Suspense>
+        <UrlError />
+      </Suspense>
       {sent ? (
         <p className="mt-8 rounded-xl bg-green-100 p-4 text-center text-green-800 dark:bg-green-950 dark:text-green-300">
           Revisa tu correo: te enviamos un enlace para entrar. ✉️
