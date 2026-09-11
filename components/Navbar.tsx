@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -15,6 +15,16 @@ export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data }) => setLoggedIn(!!data.session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setLoggedIn(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function signOut() {
     const supabase = createClient();
@@ -38,31 +48,35 @@ export function Navbar() {
           🎯 Daily Goals
         </Link>
         {/* Desktop */}
-        <nav className="hidden items-center gap-1 md:flex">
-          {LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className={linkCls(l.href)}>
-              {l.label}
-            </Link>
-          ))}
-          <button
-            onClick={signOut}
-            className="ml-2 rounded-lg px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-          >
-            Salir
-          </button>
-        </nav>
+        {loggedIn && (
+          <nav className="hidden items-center gap-1 md:flex">
+            {LINKS.map((l) => (
+              <Link key={l.href} href={l.href} className={linkCls(l.href)}>
+                {l.label}
+              </Link>
+            ))}
+            <button
+              onClick={signOut}
+              className="ml-2 rounded-lg px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            >
+              Salir
+            </button>
+          </nav>
+        )}
         {/* Mobile burger */}
-        <button
-          className="rounded-lg px-3 py-1.5 text-xl md:hidden"
-          onClick={() => setOpen((v) => !v)}
-          aria-label={open ? "Cerrar menú" : "Abrir menú"}
-          aria-expanded={open}
-        >
-          {open ? "✕" : "☰"}
-        </button>
+        {loggedIn && (
+          <button
+            className="rounded-lg px-3 py-1.5 text-xl md:hidden"
+            onClick={() => setOpen((v) => !v)}
+            aria-label={open ? "Cerrar menú" : "Abrir menú"}
+            aria-expanded={open}
+          >
+            {open ? "✕" : "☰"}
+          </button>
+        )}
       </div>
       {/* Mobile panel */}
-      {open && (
+      {loggedIn && open && (
         <nav className="flex flex-col gap-1 border-t border-zinc-200 px-4 py-3 md:hidden dark:border-zinc-800">
           {LINKS.map((l) => (
             <Link

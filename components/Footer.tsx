@@ -1,7 +1,7 @@
 export function Footer() {
   return (
     <footer className="border-t border-zinc-200 dark:border-zinc-800">
-      <div className="mx-auto flex max-w-2xl flex-col items-center gap-2 px-4 py-6 text-sm text-zinc-500">
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-2 px-4 pb-24 pt-6 text-sm text-zinc-500 md:pb-6">
         <p className="font-semibold text-zinc-700 dark:text-zinc-300">
           Daily Goals — gamifica tus rutinas
         </p>
