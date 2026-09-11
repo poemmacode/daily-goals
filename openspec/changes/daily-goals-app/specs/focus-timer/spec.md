@@ -23,7 +23,7 @@ Al llegar a 00:00 el sistema SHALL emitir una alarma audible sintetizada, marcar
 
 #### Scenario: Timer llega a cero
 - WHEN el countdown alcanza 00:00
-- THEN suena la alarma, el objetivo puede marcarse completado automáticamente (confirmable) y el `time_spent_seconds` del día aumenta.
+- THEN suena la alarma, el objetivo queda marcado completado automáticamente sin confirmación manual y la app regresa a la vista diaria mostrando el check.
 
 #### Scenario: Pausar y reanudar
 - WHEN el usuario pausa y luego reanuda

@@ -82,8 +82,12 @@ export function FocusTimer({ totalSeconds, onFinish, onTickPersist }: Props) {
       />
       <div className="flex gap-3">
         {phase === "idle" && (
-          <button onClick={start} className="rounded-xl bg-indigo-600 px-8 py-3 font-semibold text-white hover:bg-indigo-500">
-            Iniciar
+          <button
+            onClick={start}
+            aria-label="Iniciar focus"
+            className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600 text-3xl text-white shadow-lg hover:bg-indigo-500"
+          >
+            ▶
           </button>
         )}
         {phase === "running" && (
@@ -110,6 +114,9 @@ export function FocusTimer({ totalSeconds, onFinish, onTickPersist }: Props) {
           </div>
         )}
       </div>
+      {phase === "idle" && (
+        <p className="-mt-3 text-sm text-zinc-500">Pulsa ▶ para iniciar — el tiempo no corre hasta entonces</p>
+      )}
     </div>
   );
 }

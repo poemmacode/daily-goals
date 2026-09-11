@@ -50,13 +50,17 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
           : {}),
       };
       await supabase.from("goal_daily_logs").upsert(payload, { onConflict: "goal_id,log_date" });
-      setSavedMsg(
-        finished
-          ? "Sesión guardada y objetivo completado ✅"
-          : `+${Math.round(elapsedSeconds / 60)} min registrados en hoy`,
-      );
+      if (finished) {
+        // Completado automático: sin confirmación manual, regresa al día.
+        setSavedMsg("Sesión guardada y objetivo completado ✅ — volviendo a tu día…");
+        setTimeout(() => router.push("/"), 3000);
+      } else {
+        setSavedMsg(
+          `+${Math.round(elapsedSeconds / 60)} min registrados en hoy`,
+        );
+      }
     },
-    [id],
+    [id, router],
   );
 
   if (loading) return <p className="mt-16 text-center text-zinc-500">Cargando…</p>;
