@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Goal } from "@/lib/types";
 import { linkify } from "@/lib/linkify";
+import { useLang } from "@/lib/i18n";
 import { GoalForm, type GoalFormValues } from "@/components/GoalForm";
 
 async function fetchGoals(): Promise<Goal[]> {
@@ -19,6 +20,7 @@ export default function GoalsPage() {
   const [editing, setEditing] = useState<Goal | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLang();
 
   useEffect(() => {
     let ignore = false;
@@ -53,11 +55,11 @@ export default function GoalsPage() {
 
   async function handleSubmit(values: GoalFormValues) {
     if (values.end_date < values.start_date) {
-      setError("La fecha de fin no puede ser anterior al inicio.");
+      setError(t.goals.endBeforeStart);
       return;
     }
     if (values.active_days.length === 0) {
-      setError("Selecciona al menos un día activo.");
+      setError(t.goals.pickDay);
       return;
     }
     setSaving(true);
@@ -65,7 +67,7 @@ export default function GoalsPage() {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      setError("Sesión no válida. Vuelve a entrar.");
+      setError(t.goals.invalidSession);
       setSaving(false);
       return;
     }
@@ -90,7 +92,7 @@ export default function GoalsPage() {
   }
 
   async function remove(id: string) {
-    if (!confirm("¿Eliminar este objetivo y su historial?")) return;
+    if (!confirm(t.goals.confirmDelete)) return;
     const supabase = createClient();
     await supabase.from("goals").delete().eq("id", id);
     reload();
@@ -99,30 +101,30 @@ export default function GoalsPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Objetivos</h1>
+        <h1 className="text-2xl font-bold">{t.goals.title}</h1>
         <button
           onClick={() => { setEditing(null); setError(null); setShowForm(true); }}
           className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
         >
-          + Nuevo
+          {t.goals.new}
         </button>
       </div>
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
           <button
-            aria-label="Cerrar"
+            aria-label={t.goals.close}
             onClick={closeForm}
             className="absolute inset-0 cursor-default bg-black/50"
           />
           <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-xl dark:bg-zinc-950">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-bold">
-                {editing ? "Editar objetivo" : "Nuevo objetivo"}
+                {editing ? t.goals.editTitle : t.goals.newTitle}
               </h2>
               <button
                 onClick={closeForm}
-                aria-label="Cerrar modal"
+                aria-label={t.goals.closeModal}
                 className="flex h-8 w-8 items-center justify-center rounded-full text-lg hover:bg-zinc-100 dark:hover:bg-zinc-900"
               >
                 ✕
@@ -140,7 +142,7 @@ export default function GoalsPage() {
       )}
 
       {loading ? (
-        <p className="mt-8 text-center text-zinc-500">Cargando…</p>
+        <p className="mt-8 text-center text-zinc-500">{t.goals.loading}</p>
       ) : (
         <ul className="mt-6 flex flex-col gap-3">
           {goals.map((g) => (
@@ -150,14 +152,14 @@ export default function GoalsPage() {
                 <div className="flex-1">
                   <p className="font-semibold">{g.title}</p>
                   <p className="text-xs text-zinc-500">
-                    {g.allocated_minutes} min · {g.start_date} → {g.end_date} · {g.active_days.length} días/sem
+                    {g.allocated_minutes} {t.today.min} · {g.start_date} → {g.end_date} · {t.goals.daysPerWeek(g.active_days.length)}
                   </p>
                 </div>
               </div>
               {g.notes && (
                 <details className="mt-2 text-sm">
                   <summary className="cursor-pointer text-xs font-medium text-zinc-500 hover:underline">
-                    📚 Ver notas / recursos
+                    {t.goals.notesToggle}
                   </summary>
                   <p className="mt-1 whitespace-pre-wrap break-words text-zinc-700 dark:text-zinc-300">
                     {linkify(g.notes)}
@@ -169,19 +171,19 @@ export default function GoalsPage() {
                   onClick={() => { setEditing(g); setError(null); setShowForm(true); }}
                   className="rounded-lg px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                 >
-                  Editar
+                  {t.goals.edit}
                 </button>
                 <button
                   onClick={() => void archive(g.id, !g.archived)}
                   className="rounded-lg px-3 py-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-900"
                 >
-                  {g.archived ? "Reactivar" : "Archivar"}
+                  {g.archived ? t.goals.reactivate : t.goals.archive}
                 </button>
                 <button
                   onClick={() => void remove(g.id)}
                   className="rounded-lg px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
                 >
-                  Eliminar
+                  {t.goals.delete}
                 </button>
               </div>
             </li>

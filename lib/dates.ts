@@ -43,9 +43,9 @@ export function formatMinutes(totalMinutes: number): string {
   return rest === 0 ? `${h} h` : `${h} h ${rest} min`;
 }
 
-export function formatDateKey(dateKey: string): string {
+export function formatDateKey(dateKey: string, locale: "en-US" | "es-MX" = "en-US"): string {
   const [y, m, d] = dateKey.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString("es-MX", {
+  return new Date(y, m - 1, d).toLocaleDateString(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",

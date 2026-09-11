@@ -4,18 +4,19 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-
-const LINKS = [
-  { href: "/", label: "Hoy" },
-  { href: "/goals", label: "Objetivos" },
-  { href: "/insights", label: "Insights" },
-];
+import { LangToggle, useLang } from "@/lib/i18n";
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const { t } = useLang();
+  const LINKS = [
+    { href: "/", label: t.nav.today },
+    { href: "/goals", label: t.nav.goals },
+    { href: "/insights", label: t.nav.insights },
+  ];
 
   useEffect(() => {
     const supabase = createClient();
@@ -47,33 +48,36 @@ export function Navbar() {
         <Link href="/" className="font-bold tracking-tight" onClick={() => setOpen(false)}>
           🎯 Daily Goals
         </Link>
-        {/* Desktop */}
-        {loggedIn && (
-          <nav className="hidden items-center gap-1 md:flex">
-            {LINKS.map((l) => (
-              <Link key={l.href} href={l.href} className={linkCls(l.href)}>
-                {l.label}
-              </Link>
-            ))}
+        <div className="flex items-center gap-2">
+          <LangToggle />
+          {/* Desktop */}
+          {loggedIn && (
+            <nav className="hidden items-center gap-1 md:flex">
+              {LINKS.map((l) => (
+                <Link key={l.href} href={l.href} className={linkCls(l.href)}>
+                  {l.label}
+                </Link>
+              ))}
+              <button
+                onClick={signOut}
+                className="ml-2 rounded-lg px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+              >
+                {t.nav.signOut}
+              </button>
+            </nav>
+          )}
+          {/* Mobile burger */}
+          {loggedIn && (
             <button
-              onClick={signOut}
-              className="ml-2 rounded-lg px-3 py-1.5 text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+              className="rounded-lg px-3 py-1.5 text-xl md:hidden"
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? t.nav.closeMenu : t.nav.openMenu}
+              aria-expanded={open}
             >
-              Salir
+              {open ? "✕" : "☰"}
             </button>
-          </nav>
-        )}
-        {/* Mobile burger */}
-        {loggedIn && (
-          <button
-            className="rounded-lg px-3 py-1.5 text-xl md:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? "Cerrar menú" : "Abrir menú"}
-            aria-expanded={open}
-          >
-            {open ? "✕" : "☰"}
-          </button>
-        )}
+          )}
+        </div>
       </div>
       {/* Mobile panel */}
       {loggedIn && open && (
@@ -92,7 +96,7 @@ export function Navbar() {
             onClick={signOut}
             className="rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900"
           >
-            Salir
+            {t.nav.signOut}
           </button>
         </nav>
       )}

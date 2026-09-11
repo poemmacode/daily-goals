@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { DailyLog, Goal, GoalWithLog } from "@/lib/types";
 import { formatDateKey, formatMinutes, isGoalActiveOn, toLocalDateKey } from "@/lib/dates";
 import { isSessionExpired, readFocusSession, type FocusSession } from "@/lib/focus-session";
+import { useLang } from "@/lib/i18n";
 import { ProgressRing } from "@/components/ProgressRing";
 
 async function fetchToday(todayKey: string): Promise<GoalWithLog[]> {
@@ -30,6 +31,7 @@ export default function TodayPage() {
   const [loading, setLoading] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [activeSession, setActiveSession] = useState<FocusSession | null>(null);
+  const { t, lang } = useLang();
   const todayKey = toLocalDateKey();
 
   useEffect(() => {
@@ -86,7 +88,7 @@ export default function TodayPage() {
       .upsert(payload, { onConflict: "goal_id,log_date" });
     if (error) {
       fetchToday(todayKey).then(setItems); // revertir ante error
-      setSaveError(`No se pudo guardar: ${error.message}`);
+      setSaveError(t.today.saveFailed(error.message));
     } else {
       setSaveError(null);
     }
@@ -105,9 +107,9 @@ export default function TodayPage() {
     <main className="mx-auto max-w-2xl px-4 py-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold capitalize">{formatDateKey(todayKey)}</h1>
+          <h1 className="text-2xl font-bold capitalize">{formatDateKey(todayKey, lang === "es" ? "es-MX" : "en-US")}</h1>
           <p className="text-sm text-zinc-500">
-            {done} de {items.length} objetivos completados
+            {t.today.completedOf(done, items.length)}
           </p>
         </div>
         <ProgressRing percent={percent} />
@@ -123,7 +125,7 @@ export default function TodayPage() {
         <div className="mt-4 grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-blue-50 p-4 text-center dark:bg-blue-950/40">
             <p className="text-xs font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
-              Tiempo total estimado
+              {t.today.totalTime}
             </p>
             <p className="mt-1 text-3xl font-extrabold tabular-nums text-blue-600 dark:text-blue-400">
               {formatMinutes(totalMinutes)}
@@ -131,7 +133,7 @@ export default function TodayPage() {
           </div>
           <div className="rounded-2xl bg-orange-50 p-4 text-center dark:bg-orange-950/40">
             <p className="text-xs font-medium uppercase tracking-wide text-orange-600 dark:text-orange-400">
-              Tiempo restante
+              {t.today.remainingTime}
             </p>
             <p className="mt-1 text-3xl font-extrabold tabular-nums text-orange-500 dark:text-orange-400">
               {formatMinutes(remainingMinutes)}
@@ -141,12 +143,12 @@ export default function TodayPage() {
       )}
 
       {loading ? (
-        <p className="mt-8 text-center text-zinc-500">Cargando…</p>
+        <p className="mt-8 text-center text-zinc-500">{t.today.loading}</p>
       ) : items.length === 0 ? (
         <div className="mt-8 rounded-2xl border border-dashed border-zinc-300 p-8 text-center dark:border-zinc-700">
-          <p className="font-medium">No hay objetivos vigentes hoy.</p>
+          <p className="font-medium">{t.today.empty}</p>
           <Link href="/goals" className="mt-2 inline-block font-semibold text-indigo-600">
-            Crear tu primer objetivo →
+            {t.today.createFirst}
           </Link>
         </div>
       ) : (
@@ -166,8 +168,8 @@ export default function TodayPage() {
                 <button
                   onClick={() => void toggle(item)}
                   disabled={inProgress}
-                  aria-label={checked ? "Desmarcar" : "Completar"}
-                  title={inProgress ? "Cronómetro en curso: termina la sesión para completar" : undefined}
+                  aria-label={checked ? t.today.uncheck : t.today.check}
+                  title={inProgress ? t.today.inProgressHint : undefined}
                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-lg disabled:cursor-not-allowed disabled:opacity-40 ${
                     checked
                       ? "border-green-500 bg-green-500 text-white"
@@ -182,26 +184,26 @@ export default function TodayPage() {
                     {item.title}
                   </p>
                   <p className="text-xs text-zinc-500">
-                    {item.allocated_minutes} min · {item.category}
+                    {item.allocated_minutes} {t.today.min} · {item.category}
                     {(item.log?.time_spent_seconds ?? 0) > 0 &&
-                      ` · ${Math.round((item.log?.time_spent_seconds ?? 0) / 60)} min registrados`}
+                      t.today.recorded(Math.round((item.log?.time_spent_seconds ?? 0) / 60))}
                   </p>
                 </div>
                 {inProgress ? (
                   <Link
                     href={`/focus/${item.id}`}
-                    aria-label="Ver cronómetro en curso"
-                    title="Ver cronómetro en curso"
+                    aria-label={t.today.viewTimer}
+                    title={t.today.viewTimer}
                     className="shrink-0 rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:hover:bg-amber-900"
                   >
-                    👁️ In progress
+                    👁️ {t.today.inProgress}
                   </Link>
                 ) : (
                   <Link
                     href={`/focus/${item.id}`}
                     className="shrink-0 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
                   >
-                    ▶ Focus
+                    {t.today.focus}
                   </Link>
                 )}
               </li>

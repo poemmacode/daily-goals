@@ -3,25 +3,27 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-
-const ERROR_MESSAGES: Record<string, string> = {
-  missing_code: "El enlace no traía código de acceso. Pide uno nuevo.",
-  exchange_failed: "El enlace expiró o ya fue usado. Pide uno nuevo.",
-};
+import { useLang } from "@/lib/i18n";
 
 function UrlError() {
   const params = useSearchParams();
+  const { t } = useLang();
   const code = params.get("error");
   if (!code) return null;
+  const messages: Record<string, string> = {
+    missing_code: t.login.linkMissingCode,
+    exchange_failed: t.login.linkExpired,
+  };
   return (
     <p className="mt-4 rounded-xl bg-red-100 p-3 text-center text-sm text-red-800 dark:bg-red-950 dark:text-red-300">
-      {ERROR_MESSAGES[code] ?? "No se pudo completar el inicio de sesión."}
+      {messages[code] ?? t.login.linkFailed}
     </p>
   );
 }
 
 export default function LoginPage() {
   const router = useRouter();
+  const { t } = useLang();
   const [mode, setMode] = useState<"magic" | "password">("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,7 +64,6 @@ export default function LoginPage() {
       router.push("/");
       router.refresh();
     } else {
-      // Confirmación de email activada en Supabase: debe validar su correo.
       setSent(true);
     }
   }
@@ -74,7 +75,7 @@ export default function LoginPage() {
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4">
       <h1 className="text-3xl font-bold">🎯 Daily Goals</h1>
       <p className="mt-2 text-center text-zinc-600 dark:text-zinc-400">
-        Tus rutinas diarias, con timer de enfoque y rachas.
+        {t.login.subtitle}
       </p>
       <Suspense>
         <UrlError />
@@ -82,15 +83,15 @@ export default function LoginPage() {
 
       {sent ? (
         <p className="mt-8 rounded-xl bg-green-100 p-4 text-center text-green-800 dark:bg-green-950 dark:text-green-300">
-          Revisa tu correo: te enviamos un enlace para entrar. ✉️
+          {t.login.sentMagic}
         </p>
       ) : (
         <div className="mt-8 flex w-full flex-col gap-3">
           <div className="grid grid-cols-2 gap-1 rounded-xl bg-zinc-100 p-1 dark:bg-zinc-900">
             {(
               [
-                ["password", "Contraseña"],
-                ["magic", "Enlace mágico"],
+                ["password", t.login.password],
+                ["magic", t.login.magic],
               ] as const
             ).map(([m, label]) => (
               <button
@@ -118,7 +119,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@correo.com"
+                placeholder={t.login.emailPh}
                 className={inputCls}
               />
               <button
@@ -126,7 +127,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="rounded-xl bg-indigo-600 px-4 py-3 font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
               >
-                {loading ? "Enviando…" : "Enviar enlace mágico"}
+                {loading ? t.login.sending : t.login.sendMagic}
               </button>
             </form>
           ) : (
@@ -136,7 +137,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@correo.com"
+                placeholder={t.login.emailPh}
                 className={inputCls}
               />
               <div className="relative">
@@ -146,13 +147,13 @@ export default function LoginPage() {
                   minLength={6}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Tu contraseña"
+                  placeholder={t.login.passwordPh}
                   className={`${inputCls} w-full pr-12`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-xl text-zinc-500 hover:text-zinc-700"
                 >
                   {showPassword ? "🙈" : "👁️"}
@@ -165,7 +166,7 @@ export default function LoginPage() {
                   onClick={(e) => void handlePassword(e, "signin")}
                   className="rounded-xl bg-indigo-600 px-4 py-3 font-semibold text-white hover:bg-indigo-500 disabled:opacity-50"
                 >
-                  {loading ? "…" : "Entrar"}
+                  {loading ? "…" : t.login.signIn}
                 </button>
                 <button
                   type="button"
@@ -173,7 +174,7 @@ export default function LoginPage() {
                   onClick={(e) => void handlePassword(e, "signup")}
                   className="rounded-xl border border-indigo-600 px-4 py-3 font-semibold text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950 disabled:opacity-50"
                 >
-                  Crear cuenta
+                  {t.login.signUp}
                 </button>
               </div>
             </div>

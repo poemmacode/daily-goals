@@ -11,6 +11,7 @@ import {
   sessionRemaining,
   writeFocusSession,
 } from "@/lib/focus-session";
+import { useLang } from "@/lib/i18n";
 
 interface Props {
   goalId: string;
@@ -46,6 +47,7 @@ function getRestored(goalId: string, totalSeconds: number): Restored | null {
  * La sesión se persiste en localStorage para sobrevivir cierres de pestaña.
  */
 export function FocusTimer({ goalId, totalSeconds, onFinish, onTickPersist }: Props) {
+  const { t } = useLang();
   // Restaurar sesión previa de este goal (p. ej. tras cerrar la pestaña).
   const [restored] = useState<Restored | null>(() => getRestored(goalId, totalSeconds));
   const [phase, setPhase] = useState<Phase>(restored?.phase ?? "idle");
@@ -147,7 +149,7 @@ export function FocusTimer({ goalId, totalSeconds, onFinish, onTickPersist }: Pr
         {phase === "idle" && (
           <button
             onClick={start}
-            aria-label="Iniciar focus"
+            aria-label={t.timer.start}
             className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-600 text-3xl text-white shadow-lg hover:bg-indigo-500"
           >
             ▶
@@ -155,41 +157,41 @@ export function FocusTimer({ goalId, totalSeconds, onFinish, onTickPersist }: Pr
         )}
         {phase === "running" && (
           <button onClick={pause} className="rounded-xl bg-amber-500 px-8 py-3 font-semibold text-white hover:bg-amber-400">
-            Pausar
+            {t.timer.pause}
           </button>
         )}
         {phase === "paused" && (
           <button onClick={resume} className="rounded-xl bg-indigo-600 px-8 py-3 font-semibold text-white hover:bg-indigo-500">
-            Continuar
+            {t.timer.resume}
           </button>
         )}
         {(phase === "running" || phase === "paused") && (
           <button onClick={reset} className="rounded-xl border border-zinc-300 px-8 py-3 font-semibold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900">
-            Reiniciar
+            {t.timer.reset}
           </button>
         )}
         {phase === "expired" && (
           <div className="flex flex-col items-center gap-3">
-            <p className="font-semibold text-amber-600">El tiempo terminó mientras estabas fuera ⏰</p>
+            <p className="font-semibold text-amber-600">{t.timer.expired}</p>
             <button onClick={completeExpired} className="rounded-xl bg-green-600 px-8 py-3 font-semibold text-white hover:bg-green-500">
-              ✓ Marcar completada
+              {t.timer.markDone}
             </button>
           </div>
         )}
         {phase === "done" && (
           <div className="flex flex-col items-center gap-3">
-            <p className="text-xl font-bold text-green-600">¡Sesión completada! 🎉</p>
+            <p className="text-xl font-bold text-green-600">{t.timer.done}</p>
             <button onClick={start} className="rounded-xl bg-indigo-600 px-8 py-3 font-semibold text-white hover:bg-indigo-500">
-              Repetir
+              {t.timer.repeat}
             </button>
           </div>
         )}
       </div>
       {phase === "idle" && (
-        <p className="-mt-3 text-sm text-zinc-500">Pulsa ▶ para iniciar — el tiempo no corre hasta entonces</p>
+        <p className="-mt-3 text-sm text-zinc-500">{t.timer.startHint}</p>
       )}
       {phase === "paused" && (
-        <p className="-mt-3 text-sm text-zinc-500">En pausa — tu lugar está guardado aunque cierres la pestaña</p>
+        <p className="-mt-3 text-sm text-zinc-500">{t.timer.pausedHint}</p>
       )}
     </div>
   );

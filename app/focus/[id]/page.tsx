@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Goal } from "@/lib/types";
 import { toLocalDateKey } from "@/lib/dates";
 import { linkify } from "@/lib/linkify";
+import { useLang } from "@/lib/i18n";
 import { isSessionExpired, readFocusSession, type FocusSession } from "@/lib/focus-session";
 import { FocusTimer } from "@/components/FocusTimer";
 
@@ -16,6 +17,7 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
   const [goal, setGoal] = useState<Goal | null>(null);
   const [loading, setLoading] = useState(true);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  const { t } = useLang();
   // ¿Hay una sesión en curso de OTRO goal? Avisar para no correr dos timers.
   const [otherSession] = useState<FocusSession | null>(() => {
     const s = readFocusSession();
@@ -59,51 +61,49 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
       await supabase.from("goal_daily_logs").upsert(payload, { onConflict: "goal_id,log_date" });
       if (finished) {
         // Completado automático: sin confirmación manual, regresa al día.
-        setSavedMsg("Sesión guardada y objetivo completado ✅ — volviendo a tu día…");
+        setSavedMsg(t.focus.savedDone);
         setTimeout(() => router.push("/"), 3000);
       } else {
-        setSavedMsg(
-          `+${Math.round(elapsedSeconds / 60)} min registrados en hoy`,
-        );
+        setSavedMsg(t.focus.savedTime(Math.round(elapsedSeconds / 60)));
       }
     },
-    [id, router],
+    [id, router, t],
   );
 
-  if (loading) return <p className="mt-16 text-center text-zinc-500">Cargando…</p>;
+  if (loading) return <p className="mt-16 text-center text-zinc-500">{t.focus.loading}</p>;
   if (!goal)
     return (
       <main className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p>Objetivo no encontrado.</p>
-        <Link href="/" className="font-semibold text-indigo-600">Volver a hoy</Link>
+        <p>{t.focus.notFound}</p>
+        <Link href="/" className="font-semibold text-indigo-600">{t.focus.backToday}</Link>
       </main>
     );
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col items-center px-4 py-8">
       <button onClick={() => router.push("/")} className="self-start text-sm text-zinc-500 hover:underline">
-        ← Volver a hoy
+        {t.focus.back}
       </button>
       <span className="mt-4 h-2 w-24 rounded-full" style={{ backgroundColor: goal.color }} />
       <h1 className="mt-2 text-center text-2xl font-bold">{goal.title}</h1>
-      <p className="text-sm text-zinc-500">Sesión de {goal.allocated_minutes} minutos</p>
+      <p className="text-sm text-zinc-500">{t.focus.sessionOf(goal.allocated_minutes)}</p>
+
+      {otherSession && (
+        <p className="mt-4 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+          {t.focus.otherSession}{" "}
+          <Link href={`/focus/${otherSession.goalId}`} className="font-semibold underline">
+            {t.focus.backToIt}
+          </Link>
+        </p>
+      )}
 
       {goal.notes && (
         <details className="mt-4 w-full rounded-2xl border border-zinc-200 p-4 text-sm dark:border-zinc-800" open>
-          <summary className="cursor-pointer font-semibold">📚 Recursos</summary>
+          <summary className="cursor-pointer font-semibold">{t.focus.resources}</summary>
           <p className="mt-2 whitespace-pre-wrap break-words text-zinc-700 dark:text-zinc-300">
             {linkify(goal.notes)}
           </p>
         </details>
-      )}
-
-      {otherSession && (
-        <p className="mt-4 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-          ⏳ Ya tienes una sesión en curso en otro objetivo.{" "}
-          <Link href={`/focus/${otherSession.goalId}`} className="font-semibold underline">
-            Volver a ella →
-          </Link>
-        </p>
       )}
 
       <div className="mt-8">

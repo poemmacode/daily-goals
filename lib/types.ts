@@ -40,4 +40,7 @@ export const GOAL_COLORS = [
   "#ec4899",
 ];
 
-export const WEEKDAYS = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+export const WEEKDAYS_ES = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+export const WEEKDAYS_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+/** @deprecated usa WEEKDAYS_ES/WEEKDAYS_EN según idioma */
+export const WEEKDAYS = WEEKDAYS_ES;

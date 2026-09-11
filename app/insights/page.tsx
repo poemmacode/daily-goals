@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { DailyLog, Goal } from "@/lib/types";
 import { addDays, isGoalActiveOn, toLocalDateKey } from "@/lib/dates";
+import { useLang } from "@/lib/i18n";
 
 interface DayStat {
   date: string;
@@ -27,6 +28,7 @@ export default function InsightsPage() {
   const [history, setHistory] = useState<DayStat[]>([]);
   const [goalStats, setGoalStats] = useState<GoalStat[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLang();
 
   useEffect(() => {
     (async () => {
@@ -94,19 +96,19 @@ export default function InsightsPage() {
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
-      <h1 className="text-2xl font-bold">Insights</h1>
+      <h1 className="text-2xl font-bold">{t.insights.title}</h1>
 
       {loading ? (
-        <p className="mt-8 text-center text-zinc-500">Calculando…</p>
+        <p className="mt-8 text-center text-zinc-500">{t.insights.calculating}</p>
       ) : (
         <>
           <div className="mt-4 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 p-5 text-white">
-            <p className="text-sm opacity-90">Racha actual</p>
-            <p className="text-4xl font-bold">🔥 {streak} {streak === 1 ? "día" : "días"}</p>
-            <p className="text-xs opacity-80">Días consecutivos al 100%</p>
+            <p className="text-sm opacity-90">{t.insights.streak}</p>
+            <p className="text-4xl font-bold">🔥 {streak} {streak === 1 ? t.insights.day : t.insights.days}</p>
+            <p className="text-xs opacity-80">{t.insights.consecutive100}</p>
           </div>
 
-          <h2 className="mt-8 font-semibold">Últimos {HISTORY_DAYS} días</h2>
+          <h2 className="mt-8 font-semibold">{t.insights.lastDays(HISTORY_DAYS)}</h2>
           <div className="mt-3 grid grid-cols-10 gap-1.5">
             {history.map((d) => {
               const pct = d.total === 0 ? -1 : d.done / d.total;
@@ -120,7 +122,7 @@ export default function InsightsPage() {
             })}
           </div>
 
-          <h2 className="mt-8 font-semibold">Por objetivo</h2>
+          <h2 className="mt-8 font-semibold">{t.insights.perGoal}</h2>
           <ul className="mt-3 flex flex-col gap-3">
             {goalStats.map((s) => {
               const rate = s.elapsed === 0 ? 0 : Math.round((s.done / s.elapsed) * 100);
@@ -135,7 +137,7 @@ export default function InsightsPage() {
                     <div className="h-full rounded-full bg-indigo-500" style={{ width: `${Math.min(100, rate)}%` }} />
                   </div>
                   <p className="mt-1 text-xs text-zinc-500">
-                    {s.done}/{s.elapsed} días · {s.actualMinutes} de {s.plannedMinutes} min
+                    {t.insights.daysDone(s.done, s.elapsed)} · {t.insights.minVs(s.actualMinutes, s.plannedMinutes)}
                   </p>
                 </li>
               );
@@ -143,7 +145,7 @@ export default function InsightsPage() {
           </ul>
           {goalStats.length === 0 && (
             <p className="mt-4 text-sm text-zinc-500">
-              Aún no hay objetivos. <Link href="/goals" className="font-semibold text-indigo-600">Crea uno →</Link>
+              {t.insights.noGoals} <Link href="/goals" className="font-semibold text-indigo-600">{t.insights.createOne}</Link>
             </p>
           )}
         </>

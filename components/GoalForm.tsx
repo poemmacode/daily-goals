@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { GOAL_COLORS, WEEKDAYS, type Goal } from "@/lib/types";
+import { GOAL_COLORS, WEEKDAYS_EN, WEEKDAYS_ES, type Goal } from "@/lib/types";
 import { toLocalDateKey } from "@/lib/dates";
+import { useLang, type Lang } from "@/lib/i18n";
 
 export interface GoalFormValues {
   title: string;
@@ -24,6 +25,8 @@ interface Props {
 }
 
 export function GoalForm({ initial, onSubmit, onCancel, saving, error }: Props) {
+  const { t, lang } = useLang();
+  const WEEKDAYS: Record<Lang, string[]> = { en: WEEKDAYS_EN, es: WEEKDAYS_ES };
   const today = toLocalDateKey();
   const [title, setTitle] = useState(initial?.title ?? "");
   const [minutes, setMinutes] = useState(initial?.allocated_minutes ?? 30);
@@ -58,33 +61,33 @@ export function GoalForm({ initial, onSubmit, onCancel, saving, error }: Props) 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div>
-        <label className="mb-1 block text-sm font-medium">Título</label>
-        <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={200} placeholder="Ej. Leer 30 minutos" />
+        <label className="mb-1 block text-sm font-medium">{t.form.title}</label>
+        <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} required maxLength={200} placeholder={t.form.titlePh} />
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="mb-1 block text-sm font-medium">Minutos asignados</label>
+          <label className="mb-1 block text-sm font-medium">{t.form.minutes}</label>
           <input className={inputCls} type="number" min={1} max={1440} value={minutes} onChange={(e) => setMinutes(Number(e.target.value))} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Categoría</label>
+          <label className="mb-1 block text-sm font-medium">{t.form.category}</label>
           <input className={inputCls} value={category} onChange={(e) => setCategory(e.target.value)} maxLength={50} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="mb-1 block text-sm font-medium">Inicio</label>
+          <label className="mb-1 block text-sm font-medium">{t.form.start}</label>
           <input className={inputCls} type="date" value={start} onChange={(e) => setStart(e.target.value)} required />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium">Fin</label>
+          <label className="mb-1 block text-sm font-medium">{t.form.end}</label>
           <input className={inputCls} type="date" value={end} min={start} onChange={(e) => setEnd(e.target.value)} required />
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium">Días activos</label>
+        <label className="mb-1 block text-sm font-medium">{t.form.activeDays}</label>
         <div className="flex gap-2">
-          {WEEKDAYS.map((name, d) => (
+          {WEEKDAYS[lang].map((name, d) => (
             <button
               key={d}
               type="button"
@@ -101,7 +104,7 @@ export function GoalForm({ initial, onSubmit, onCancel, saving, error }: Props) 
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium">Color</label>
+        <label className="mb-1 block text-sm font-medium">{t.form.color}</label>
         <div className="flex gap-2">
           {GOAL_COLORS.map((c) => (
             <button
@@ -116,23 +119,23 @@ export function GoalForm({ initial, onSubmit, onCancel, saving, error }: Props) 
         </div>
       </div>
       <div>
-        <label className="mb-1 block text-sm font-medium">Notas / recursos</label>
+        <label className="mb-1 block text-sm font-medium">{t.form.notes}</label>
         <textarea
           className={`${inputCls} min-h-20`}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           maxLength={2000}
-          placeholder={"Ej. Estudiar aquí:\nhttps://docs.python.org/3/tutorial/"}
+          placeholder={t.form.notesPh}
         />
-        <p className="mt-1 text-xs text-zinc-500">Los enlaces se vuelven clicables solos.</p>
+        <p className="mt-1 text-xs text-zinc-500">{t.form.notesHint}</p>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-3">
         <button type="submit" disabled={saving} className="flex-1 rounded-xl bg-indigo-600 px-4 py-2.5 font-semibold text-white hover:bg-indigo-500 disabled:opacity-50">
-          {saving ? "Guardando…" : initial ? "Guardar cambios" : "Crear objetivo"}
+          {saving ? t.form.saving : initial ? t.form.save : t.form.create}
         </button>
         <button type="button" onClick={onCancel} className="rounded-xl border border-zinc-300 px-4 py-2.5 dark:border-zinc-700">
-          Cancelar
+          {t.form.cancel}
         </button>
       </div>
     </form>

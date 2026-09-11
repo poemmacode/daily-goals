@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useLang } from "@/lib/i18n";
 
 function CalendarCheckIcon({ active }: { active: boolean }) {
   return (
@@ -37,15 +38,16 @@ function PieIcon({ active }: { active: boolean }) {
 }
 
 const TABS = [
-  { href: "/", label: "Hoy", Icon: CalendarCheckIcon },
-  { href: "/goals", label: "Objetivos", Icon: TargetIcon },
-  { href: "/insights", label: "Insights", Icon: PieIcon },
+  { href: "/", key: "today" as const, Icon: CalendarCheckIcon },
+  { href: "/goals", key: "goals" as const, Icon: TargetIcon },
+  { href: "/insights", key: "insights" as const, Icon: PieIcon },
 ];
 
 /** Barra inferior estilo app móvil. Solo visible en mobile y con sesión. */
 export function BottomNav() {
   const pathname = usePathname();
   const [loggedIn, setLoggedIn] = useState(false);
+  const { t } = useLang();
 
   useEffect(() => {
     const supabase = createClient();
@@ -61,7 +63,7 @@ export function BottomNav() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-zinc-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden dark:border-zinc-800 dark:bg-zinc-950/95">
       <div className="grid grid-cols-3">
-        {TABS.map(({ href, label, Icon }) => {
+        {TABS.map(({ href, key, Icon }) => {
           const active = pathname === href;
           return (
             <Link
@@ -72,7 +74,7 @@ export function BottomNav() {
               }`}
             >
               <Icon active={active} />
-              {label}
+              {t.bottom[key]}
             </Link>
           );
         })}
