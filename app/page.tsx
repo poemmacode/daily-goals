@@ -188,9 +188,14 @@ export default function TodayPage() {
                   </p>
                 </div>
                 {inProgress ? (
-                  <span className="shrink-0 rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
-                    ⏳ In progress
-                  </span>
+                  <Link
+                    href={`/focus/${item.id}`}
+                    aria-label="Ver cronómetro en curso"
+                    title="Ver cronómetro en curso"
+                    className="shrink-0 rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:hover:bg-amber-900"
+                  >
+                    👁️ In progress
+                  </Link>
                 ) : (
                   <Link
                     href={`/focus/${item.id}`}
