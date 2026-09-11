@@ -28,3 +28,17 @@ Un objetivo SHALL considerarse vigente un día dado solo si está activo, la fec
 #### Scenario: Objetivo fuera de vigencia
 - WHEN llega el día siguiente a `end_date`
 - THEN el objetivo ya no aparece en el checklist sin necesidad de acción manual.
+
+### Requirement: Alta y edición en modal cerrable
+El sistema SHALL abrir el formulario de objetivo en un modal centrado que se puede cerrar con botón ✕, click fuera o tecla Escape, sin perder la posición de scroll de la lista.
+
+#### Scenario: Abrir modal desde lista larga
+- WHEN el usuario pulsa "+ Nuevo" con la lista con scroll abajo
+- THEN el modal aparece centrado y al cerrarlo la lista conserva su posición.
+
+### Requirement: Login con email y contraseña
+El sistema SHALL ofrecer login con email + contraseña (entrar y crear cuenta) además del enlace mágico, redirigiendo al checklist al obtener sesión.
+
+#### Scenario: Entrar con contraseña
+- WHEN el usuario entra con credenciales válidas
+- THEN aterriza en el checklist del día sin pasar por email.

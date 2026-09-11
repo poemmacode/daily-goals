@@ -35,6 +35,21 @@ export default function GoalsPage() {
     fetchGoals().then(setGoals);
   }
 
+  function closeForm() {
+    setShowForm(false);
+    setEditing(null);
+  }
+
+  // Cerrar el modal con Escape sin perder la posición de scroll.
+  useEffect(() => {
+    if (!showForm) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeForm();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showForm]);
+
   async function handleSubmit(values: GoalFormValues) {
     if (values.end_date < values.start_date) {
       setError("La fecha de fin no puede ser anterior al inicio.");
@@ -64,13 +79,11 @@ export default function GoalsPage() {
       setError(result.error.message);
       return;
     }
-    setShowForm(false);
-    setEditing(null);
+    closeForm();
     reload();
   }
 
-  async function archive(id: string, archived: boolean) {
-    const supabase = createClient();
+  async function archive(id: string, archived: boolean) {    const supabase = createClient();
     await supabase.from("goals").update({ archived, updated_at: new Date().toISOString() }).eq("id", id);
     reload();
   }
@@ -95,14 +108,33 @@ export default function GoalsPage() {
       </div>
 
       {showForm && (
-        <div className="mt-4 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
-          <GoalForm
-            initial={editing}
-            onSubmit={handleSubmit}
-            onCancel={() => { setShowForm(false); setEditing(null); }}
-            saving={saving}
-            error={error}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+          <button
+            aria-label="Cerrar"
+            onClick={closeForm}
+            className="absolute inset-0 cursor-default bg-black/50"
           />
+          <div className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-5 shadow-xl dark:bg-zinc-950">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-bold">
+                {editing ? "Editar objetivo" : "Nuevo objetivo"}
+              </h2>
+              <button
+                onClick={closeForm}
+                aria-label="Cerrar modal"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-lg hover:bg-zinc-100 dark:hover:bg-zinc-900"
+              >
+                ✕
+              </button>
+            </div>
+            <GoalForm
+              initial={editing}
+              onSubmit={handleSubmit}
+              onCancel={closeForm}
+              saving={saving}
+              error={error}
+            />
+          </div>
         </div>
       )}
 
