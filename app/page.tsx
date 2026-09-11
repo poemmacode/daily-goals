@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { DailyLog, Goal, GoalWithLog } from "@/lib/types";
 import { formatDateKey, formatMinutes, isGoalActiveOn, toLocalDateKey } from "@/lib/dates";
+import { isSessionExpired, readFocusSession, type FocusSession } from "@/lib/focus-session";
 import { ProgressRing } from "@/components/ProgressRing";
 
 async function fetchToday(todayKey: string): Promise<GoalWithLog[]> {
@@ -28,6 +29,7 @@ export default function TodayPage() {
   const [items, setItems] = useState<GoalWithLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [activeSession, setActiveSession] = useState<FocusSession | null>(null);
   const todayKey = toLocalDateKey();
 
   useEffect(() => {
@@ -42,7 +44,24 @@ export default function TodayPage() {
     };
   }, [todayKey]);
 
+  // Rastrear sesión de focus en curso (misma u otra pestaña) para bloquear ese goal.
+  useEffect(() => {
+    const sync = () => {
+      const s = readFocusSession();
+      setActiveSession(s && !isSessionExpired(s) ? s : null);
+    };
+    sync();
+    const id = setInterval(sync, 1000);
+    window.addEventListener("storage", sync);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
   async function toggle(item: GoalWithLog) {
+    // Goal con cronómetro en curso: no se puede marcar manual.
+    if (activeSession?.goalId === item.id) return;
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
@@ -134,6 +153,7 @@ export default function TodayPage() {
         <ul className="mt-6 flex flex-col gap-3">
           {items.map((item) => {
             const checked = item.log?.completed ?? false;
+            const inProgress = activeSession?.goalId === item.id;
             return (
               <li
                 key={item.id}
@@ -145,8 +165,10 @@ export default function TodayPage() {
               >
                 <button
                   onClick={() => void toggle(item)}
+                  disabled={inProgress}
                   aria-label={checked ? "Desmarcar" : "Completar"}
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-lg ${
+                  title={inProgress ? "Cronómetro en curso: termina la sesión para completar" : undefined}
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-lg disabled:cursor-not-allowed disabled:opacity-40 ${
                     checked
                       ? "border-green-500 bg-green-500 text-white"
                       : "border-zinc-300 dark:border-zinc-600"
@@ -165,12 +187,18 @@ export default function TodayPage() {
                       ` · ${Math.round((item.log?.time_spent_seconds ?? 0) / 60)} min registrados`}
                   </p>
                 </div>
-                <Link
-                  href={`/focus/${item.id}`}
-                  className="shrink-0 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
-                >
-                  ▶ Focus
-                </Link>
+                {inProgress ? (
+                  <span className="shrink-0 rounded-xl bg-amber-100 px-4 py-2 text-sm font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                    ⏳ In progress
+                  </span>
+                ) : (
+                  <Link
+                    href={`/focus/${item.id}`}
+                    className="shrink-0 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+                  >
+                    ▶ Focus
+                  </Link>
+                )}
               </li>
             );
           })}

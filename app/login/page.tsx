@@ -25,6 +25,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"magic" | "password">("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -138,15 +139,25 @@ export default function LoginPage() {
                 placeholder="tu@correo.com"
                 className={inputCls}
               />
-              <input
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Tu contraseña"
-                className={inputCls}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Tu contraseña"
+                  className={`${inputCls} w-full pr-12`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xl text-zinc-500 hover:text-zinc-700"
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"

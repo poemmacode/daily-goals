@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Goal } from "@/lib/types";
 import { toLocalDateKey } from "@/lib/dates";
+import { isSessionExpired, readFocusSession, type FocusSession } from "@/lib/focus-session";
 import { FocusTimer } from "@/components/FocusTimer";
 
 export default function FocusPage({ params }: { params: Promise<{ id: string }> }) {
@@ -14,6 +15,11 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
   const [goal, setGoal] = useState<Goal | null>(null);
   const [loading, setLoading] = useState(true);
   const [savedMsg, setSavedMsg] = useState<string | null>(null);
+  // ¿Hay una sesión en curso de OTRO goal? Avisar para no correr dos timers.
+  const [otherSession] = useState<FocusSession | null>(() => {
+    const s = readFocusSession();
+    return s && s.goalId !== id && !isSessionExpired(s) ? s : null;
+  });
 
   useEffect(() => {
     (async () => {
@@ -81,8 +87,18 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
       <h1 className="mt-2 text-center text-2xl font-bold">{goal.title}</h1>
       <p className="text-sm text-zinc-500">Sesión de {goal.allocated_minutes} minutos</p>
 
+      {otherSession && (
+        <p className="mt-4 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+          ⏳ Ya tienes una sesión en curso en otro objetivo.{" "}
+          <Link href={`/focus/${otherSession.goalId}`} className="font-semibold underline">
+            Volver a ella →
+          </Link>
+        </p>
+      )}
+
       <div className="mt-8">
         <FocusTimer
+          goalId={goal.id}
           totalSeconds={goal.allocated_minutes * 60}
           onFinish={(elapsed) => void persist(elapsed, true)}
           onTickPersist={(elapsed) => void persist(elapsed, false)}

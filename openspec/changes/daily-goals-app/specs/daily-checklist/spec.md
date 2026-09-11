@@ -35,3 +35,10 @@ El sistema SHALL mostrar en la vista principal el tiempo total estimado (suma de
 #### Scenario: Ver tiempos del día
 - WHEN hay 2 objetivos vigentes de 30 y 60 min y uno de 30 ya completado
 - THEN el total muestra 90 min en azul y el restante 60 min en naranja.
+
+### Requirement: Bloqueo del goal con sesión en curso
+El sistema SHALL deshabilitar el checkbox y reemplazar el botón Focus por "In progress" deshabilitado en el goal con cronómetro corriendo o pausado, sin afectar a los demás goals.
+
+#### Scenario: Intentar marcar goal en curso
+- WHEN hay una sesión activa en un objetivo y el usuario abre la vista diaria
+- THEN ese objetivo muestra "In progress", su check está deshabilitado y los demás siguen operables.

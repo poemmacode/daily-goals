@@ -28,3 +28,14 @@ Al llegar a 00:00 el sistema SHALL emitir una alarma audible sintetizada, marcar
 #### Scenario: Pausar y reanudar
 - WHEN el usuario pausa y luego reanuda
 - THEN el tiempo restante se congela durante la pausa y continúa desde el mismo punto sin perder segundos.
+
+### Requirement: Sesión persistente entre pestañas
+El sistema SHALL persistir la sesión de focus (goal, total y timestamp objetivo) de modo que al cerrar y reabrir la pestaña el cronómetro muestre el restante real descontando el tiempo fuera.
+
+#### Scenario: Reabrir con tiempo restante
+- WHEN el usuario cierra la pestaña 5 minutos y la reabre
+- THEN el timer continúa desde el restante real sin reiniciarse.
+
+#### Scenario: Timer vencido fuera de la app
+- WHEN el tiempo se agotó con la pestaña cerrada
+- THEN al volver muestra 00:00 pendiente y se completa al pulsar el botón, con alarma.
