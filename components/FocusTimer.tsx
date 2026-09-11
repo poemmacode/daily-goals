@@ -82,6 +82,21 @@ export function FocusTimer({ goalId, totalSeconds, onFinish, onTickPersist }: Pr
   }
 
   function start() {
+    // Anti doble-start: si otra pestaña ya inició este goal, adoptar esa sesión.
+    const existing = readFocusSession();
+    if (existing && existing.goalId === goalId && !isSessionExpired(existing)) {
+      if (existing.phase === "paused") {
+        const r = sessionRemaining(existing);
+        pausedRemainingRef.current = r;
+        setRemaining(r);
+        setPhase("paused");
+      } else {
+        targetRef.current = existing.targetTs;
+        setRemaining(sessionRemaining(existing));
+        setPhase("running");
+      }
+      return;
+    }
     finishedRef.current = false;
     pausedRemainingRef.current = totalSeconds;
     setRemaining(totalSeconds);
