@@ -10,6 +10,7 @@ export interface Goal {
   end_date: string; // YYYY-MM-DD
   active_days: number[]; // 0=domingo ... 6=sábado
   archived: boolean;
+  notes: string;
   created_at: string;
   updated_at: string;
 }

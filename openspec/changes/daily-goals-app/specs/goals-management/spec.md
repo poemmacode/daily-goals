@@ -42,3 +42,10 @@ El sistema SHALL ofrecer login con email + contraseña (entrar y crear cuenta) a
 #### Scenario: Entrar con contraseña
 - WHEN el usuario entra con credenciales válidas
 - THEN aterriza en el checklist del día sin pasar por email.
+
+### Requirement: Notas y recursos por objetivo
+El sistema SHALL permitir guardar notas de texto libre por objetivo y mostrar las URLs como enlaces clicables (nueva pestaña) en la lista de objetivos y en la vista focus.
+
+#### Scenario: Guardar enlace de estudio
+- WHEN el usuario guarda "Estudiar aquí: https://docs.python.org/3/tutorial/" en un goal
+- THEN el enlace aparece clicable en Objetivos y en el focus de ese goal.

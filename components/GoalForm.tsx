@@ -12,6 +12,7 @@ export interface GoalFormValues {
   active_days: number[];
   category: string;
   color: string;
+  notes: string;
 }
 
 interface Props {
@@ -31,6 +32,7 @@ export function GoalForm({ initial, onSubmit, onCancel, saving, error }: Props) 
   const [days, setDays] = useState<number[]>(initial?.active_days ?? [0, 1, 2, 3, 4, 5, 6]);
   const [category, setCategory] = useState(initial?.category ?? "general");
   const [color, setColor] = useState(initial?.color ?? GOAL_COLORS[0]);
+  const [notes, setNotes] = useState(initial?.notes ?? "");
 
   function toggleDay(d: number) {
     setDays((prev) => (prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort()));
@@ -46,6 +48,7 @@ export function GoalForm({ initial, onSubmit, onCancel, saving, error }: Props) 
       active_days: days,
       category: category.trim() || "general",
       color,
+      notes: notes.trim(),
     });
   }
 
@@ -111,6 +114,17 @@ export function GoalForm({ initial, onSubmit, onCancel, saving, error }: Props) 
             />
           ))}
         </div>
+      </div>
+      <div>
+        <label className="mb-1 block text-sm font-medium">Notas / recursos</label>
+        <textarea
+          className={`${inputCls} min-h-20`}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          maxLength={2000}
+          placeholder={"Ej. Estudiar aquí:\nhttps://docs.python.org/3/tutorial/"}
+        />
+        <p className="mt-1 text-xs text-zinc-500">Los enlaces se vuelven clicables solos.</p>
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-3">

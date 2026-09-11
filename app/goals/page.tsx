@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Goal } from "@/lib/types";
+import { linkify } from "@/lib/linkify";
 import { GoalForm, type GoalFormValues } from "@/components/GoalForm";
 
 async function fetchGoals(): Promise<Goal[]> {
@@ -153,6 +154,16 @@ export default function GoalsPage() {
                   </p>
                 </div>
               </div>
+              {g.notes && (
+                <details className="mt-2 text-sm">
+                  <summary className="cursor-pointer text-xs font-medium text-zinc-500 hover:underline">
+                    📚 Ver notas / recursos
+                  </summary>
+                  <p className="mt-1 whitespace-pre-wrap break-words text-zinc-700 dark:text-zinc-300">
+                    {linkify(g.notes)}
+                  </p>
+                </details>
+              )}
               <div className="mt-3 flex gap-2 text-sm">
                 <button
                   onClick={() => { setEditing(g); setError(null); setShowForm(true); }}

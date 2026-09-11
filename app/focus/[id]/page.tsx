@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Goal } from "@/lib/types";
 import { toLocalDateKey } from "@/lib/dates";
+import { linkify } from "@/lib/linkify";
 import { isSessionExpired, readFocusSession, type FocusSession } from "@/lib/focus-session";
 import { FocusTimer } from "@/components/FocusTimer";
 
@@ -86,6 +87,15 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
       <span className="mt-4 h-2 w-24 rounded-full" style={{ backgroundColor: goal.color }} />
       <h1 className="mt-2 text-center text-2xl font-bold">{goal.title}</h1>
       <p className="text-sm text-zinc-500">Sesión de {goal.allocated_minutes} minutos</p>
+
+      {goal.notes && (
+        <details className="mt-4 w-full rounded-2xl border border-zinc-200 p-4 text-sm dark:border-zinc-800" open>
+          <summary className="cursor-pointer font-semibold">📚 Recursos</summary>
+          <p className="mt-2 whitespace-pre-wrap break-words text-zinc-700 dark:text-zinc-300">
+            {linkify(goal.notes)}
+          </p>
+        </details>
+      )}
 
       {otherSession && (
         <p className="mt-4 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800 dark:bg-amber-950 dark:text-amber-300">
