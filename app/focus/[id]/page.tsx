@@ -30,6 +30,8 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
       if (elapsedSeconds <= 0 && !finished) return;
       const supabase = createClient();
       const todayKey = toLocalDateKey();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
       const { data: existing } = await supabase
         .from("goal_daily_logs")
         .select("id,time_spent_seconds")
@@ -40,6 +42,7 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
       const prev = (existing?.time_spent_seconds as number | undefined) ?? 0;
       const payload = {
         goal_id: id,
+        user_id: user.id,
         log_date: todayKey,
         time_spent_seconds: prev + elapsedSeconds,
         ...(finished

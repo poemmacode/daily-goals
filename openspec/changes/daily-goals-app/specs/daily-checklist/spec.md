@@ -28,3 +28,10 @@ El sistema SHALL calcular y mostrar el porcentaje `completados / vigentes * 100`
 #### Scenario: Ver progreso del día
 - WHEN hay 4 objetivos vigentes y 3 completados
 - THEN el indicador muestra 75% inmediatamente tras cada cambio.
+
+### Requirement: Tiempo total estimado y restante del día
+El sistema SHALL mostrar en la vista principal el tiempo total estimado (suma de minutos asignados de los vigentes) en grande y azul, y el tiempo restante para concluir (descontando lo completado y los minutos ya registrados) en grande y naranja, recalculados en tiempo real.
+
+#### Scenario: Ver tiempos del día
+- WHEN hay 2 objetivos vigentes de 30 y 60 min y uno de 30 ya completado
+- THEN el total muestra 90 min en azul y el restante 60 min en naranja.

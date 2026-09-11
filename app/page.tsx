@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { DailyLog, Goal, GoalWithLog } from "@/lib/types";
-import { formatDateKey, isGoalActiveOn, toLocalDateKey } from "@/lib/dates";
+import { formatDateKey, formatMinutes, isGoalActiveOn, toLocalDateKey } from "@/lib/dates";
 import { ProgressRing } from "@/components/ProgressRing";
 
 async function fetchToday(todayKey: string): Promise<GoalWithLog[]> {
@@ -27,6 +27,7 @@ async function fetchToday(todayKey: string): Promise<GoalWithLog[]> {
 export default function TodayPage() {
   const [items, setItems] = useState<GoalWithLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const todayKey = toLocalDateKey();
 
   useEffect(() => {
@@ -43,9 +44,12 @@ export default function TodayPage() {
 
   async function toggle(item: GoalWithLog) {
     const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
     const completed = !(item.log?.completed ?? false);
     const payload = {
       goal_id: item.id,
+      user_id: user.id,
       log_date: todayKey,
       completed,
       completed_at: completed ? new Date().toISOString() : null,
@@ -61,11 +65,22 @@ export default function TodayPage() {
     const { error } = await supabase
       .from("goal_daily_logs")
       .upsert(payload, { onConflict: "goal_id,log_date" });
-    if (error) fetchToday(todayKey).then(setItems); // revertir ante error
+    if (error) {
+      fetchToday(todayKey).then(setItems); // revertir ante error
+      setSaveError(`No se pudo guardar: ${error.message}`);
+    } else {
+      setSaveError(null);
+    }
   }
 
   const done = items.filter((i) => i.log?.completed).length;
   const percent = items.length === 0 ? 0 : (done / items.length) * 100;
+  const totalMinutes = items.reduce((a, i) => a + i.allocated_minutes, 0);
+  const remainingMinutes = items.reduce((a, i) => {
+    if (i.log?.completed) return a;
+    const spent = Math.round((i.log?.time_spent_seconds ?? 0) / 60);
+    return a + Math.max(0, i.allocated_minutes - spent);
+  }, 0);
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
@@ -78,6 +93,33 @@ export default function TodayPage() {
         </div>
         <ProgressRing percent={percent} />
       </div>
+
+      {saveError && (
+        <p className="mt-4 rounded-xl bg-red-100 p-3 text-sm text-red-800 dark:bg-red-950 dark:text-red-300">
+          {saveError}
+        </p>
+      )}
+
+      {items.length > 0 && (
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-blue-50 p-4 text-center dark:bg-blue-950/40">
+            <p className="text-xs font-medium uppercase tracking-wide text-blue-600 dark:text-blue-400">
+              Tiempo total estimado
+            </p>
+            <p className="mt-1 text-3xl font-extrabold tabular-nums text-blue-600 dark:text-blue-400">
+              {formatMinutes(totalMinutes)}
+            </p>
+          </div>
+          <div className="rounded-2xl bg-orange-50 p-4 text-center dark:bg-orange-950/40">
+            <p className="text-xs font-medium uppercase tracking-wide text-orange-600 dark:text-orange-400">
+              Tiempo restante
+            </p>
+            <p className="mt-1 text-3xl font-extrabold tabular-nums text-orange-500 dark:text-orange-400">
+              {formatMinutes(remainingMinutes)}
+            </p>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <p className="mt-8 text-center text-zinc-500">Cargando…</p>

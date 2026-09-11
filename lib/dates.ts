@@ -34,6 +34,15 @@ export function formatSeconds(total: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+/** "90" -> "1 h 30 min", "45" -> "45 min". */
+export function formatMinutes(totalMinutes: number): string {
+  const m = Math.max(0, Math.round(totalMinutes));
+  const h = Math.floor(m / 60);
+  const rest = m % 60;
+  if (h === 0) return `${rest} min`;
+  return rest === 0 ? `${h} h` : `${h} h ${rest} min`;
+}
+
 export function formatDateKey(dateKey: string): string {
   const [y, m, d] = dateKey.split("-").map(Number);
   return new Date(y, m - 1, d).toLocaleDateString("es-MX", {
