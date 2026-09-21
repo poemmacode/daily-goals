@@ -24,7 +24,7 @@ export default function GoalsPage() {
   const [error, setError] = useState<string | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const [templateInitial, setTemplateInitial] = useState<Partial<GoalFormValues> | null>(null);
-  const { t } = useLang();
+  const { lang, t } = useLang();
 
   useEffect(() => {
     let ignore = false;

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
-import { getDevTier, setDevTier, type Tier } from "@/lib/entitlements/access";
+import { getDevTier, setDevTier } from "@/lib/entitlements/access";
+import type { Tier } from "@/lib/entitlements/features";
 import { Feature, FEATURE_DESCRIPTIONS } from "@/lib/entitlements/features";
 
 export default function SettingsPage() {

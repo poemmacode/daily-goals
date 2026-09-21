@@ -108,12 +108,12 @@ export default function ContentEditorPage() {
       author: page.author || null,
       indexable: page.indexable,
       follow_links: page.follow_links,
+      created_at: now,
       published_at: publish && page.status !== "published" ? now : page.published_at,
       updated_at: now,
     };
 
     if (isNew) {
-      row.created_at = now;
       const { data, error: insertError } = await supabase
         .from("seo_content")
         .insert(row)

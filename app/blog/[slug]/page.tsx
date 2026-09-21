@@ -11,7 +11,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("seo_content")
     .select("title, meta_title, meta_description, featured_image, canonical_url")
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("seo_content")
     .select("*")
