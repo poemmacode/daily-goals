@@ -16,6 +16,7 @@ export function Navbar() {
     { href: "/", label: t.nav.today },
     { href: "/goals", label: t.nav.goals },
     { href: "/insights", label: t.nav.insights },
+    { href: "/settings", label: t.nav.settings },
   ];
 
   useEffect(() => {

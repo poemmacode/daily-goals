@@ -5,8 +5,8 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 export type Lang = "en" | "es";
 
 const en = {
-  nav: { today: "Today", goals: "Goals", insights: "Insights", signOut: "Sign out", openMenu: "Open menu", closeMenu: "Close menu" },
-  bottom: { today: "Today", goals: "Goals", insights: "Insights" },
+  nav: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings", signOut: "Sign out", openMenu: "Open menu", closeMenu: "Close menu" },
+  bottom: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings" },
   footer: { tagline: "Daily Goals — gamify your routines" },
   login: {
     subtitle: "Your daily routines, with focus timer and streaks.",
@@ -114,13 +114,26 @@ const en = {
     noGoals: "No goals yet.",
     createOne: "Create one →",
   },
+  settings: {
+    title: "Settings",
+    profile: "Profile",
+    subscription: "Subscription",
+    devMode: "Development Mode",
+    devModeHint: "Toggle to test Pro features without real payment.",
+    upgradeToPro: "Upgrade to Pro",
+    aiSettings: "AI Settings",
+    aiHint: "Set up your own OpenAI API key for AI features.",
+    aiSecurity: "Your key is used to make AI requests. Fees are billed directly to your OpenAI account.",
+    comingSoon: "Coming soon: API key management is in development.",
+    features: "Features",
+  },
 };
 
 export type Dict = typeof en;
 
 const es: Dict = {
-  nav: { today: "Hoy", goals: "Objetivos", insights: "Insights", signOut: "Salir", openMenu: "Abrir menú", closeMenu: "Cerrar menú" },
-  bottom: { today: "Hoy", goals: "Objetivos", insights: "Insights" },
+  nav: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Configuración", signOut: "Salir", openMenu: "Abrir menú", closeMenu: "Cerrar menú" },
+  bottom: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Config." },
   footer: { tagline: "Daily Goals — gamifica tus rutinas" },
   login: {
     subtitle: "Tus rutinas diarias, con timer de enfoque y rachas.",
@@ -227,6 +240,19 @@ const es: Dict = {
     minVs: (a, p) => `${a} de ${p} min`,
     noGoals: "Aún no hay objetivos.",
     createOne: "Crea uno →",
+  },
+  settings: {
+    title: "Configuración",
+    profile: "Perfil",
+    subscription: "Suscripción",
+    devMode: "Modo desarrollo",
+    devModeHint: "Alterna para probar funciones de Pro sin pago real.",
+    upgradeToPro: "Mejorar a Pro",
+    aiSettings: "Configuración de IA",
+    aiHint: "Configura tu propia clave API de OpenAI para funciones de IA.",
+    aiSecurity: "Tu clave se usa para hacer solicitudes de IA. Los cargos se facturan directamente a tu cuenta de OpenAI.",
+    comingSoon: "Próximamente: la gestión de claves API está en desarrollo.",
+    features: "Funciones",
   },
 };
 

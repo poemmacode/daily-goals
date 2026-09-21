@@ -6,6 +6,8 @@ import type { Goal } from "@/lib/types";
 import { linkify } from "@/lib/linkify";
 import { useLang } from "@/lib/i18n";
 import { GoalForm, type GoalFormValues } from "@/components/GoalForm";
+import { TemplateModal } from "@/components/TemplateModal";
+import type { GoalTemplate } from "@/lib/templates";
 
 async function fetchGoals(): Promise<Goal[]> {
   const supabase = createClient();
@@ -20,6 +22,8 @@ export default function GoalsPage() {
   const [editing, setEditing] = useState<Goal | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [templateInitial, setTemplateInitial] = useState<Partial<GoalFormValues> | null>(null);
   const { t } = useLang();
 
   useEffect(() => {
@@ -41,6 +45,23 @@ export default function GoalsPage() {
   function closeForm() {
     setShowForm(false);
     setEditing(null);
+    setTemplateInitial(null);
+  }
+
+  function handleTemplateSelect(template: GoalTemplate) {
+    const today = new Date().toISOString().slice(0, 10);
+    setTemplateInitial({
+      title: template.title,
+      category: template.category,
+      allocated_minutes: template.allocated_minutes,
+      active_days: template.active_days,
+      color: template.color,
+      notes: template.notes,
+      start_date: today,
+      end_date: today,
+    });
+    setShowTemplates(false);
+    setShowForm(true);
   }
 
   // Cerrar el modal con Escape sin perder la posición de scroll.
@@ -102,13 +123,28 @@ export default function GoalsPage() {
     <main className="mx-auto max-w-2xl px-4 py-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">{t.goals.title}</h1>
-        <button
-          onClick={() => { setEditing(null); setError(null); setShowForm(true); }}
-          className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
-        >
-          {t.goals.new}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowTemplates(true)}
+            className="rounded-xl border border-zinc-300 px-4 py-2 text-sm font-semibold hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
+          >
+            {lang === "es" ? "📋 Plantillas" : "📋 Templates"}
+          </button>
+          <button
+            onClick={() => { setEditing(null); setError(null); setShowForm(true); }}
+            className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500"
+          >
+            {t.goals.new}
+          </button>
+        </div>
       </div>
+
+      {showTemplates && (
+        <TemplateModal
+          onSelect={handleTemplateSelect}
+          onClose={() => setShowTemplates(false)}
+        />
+      )}
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
@@ -131,7 +167,7 @@ export default function GoalsPage() {
               </button>
             </div>
             <GoalForm
-              initial={editing}
+              initial={editing ?? templateInitial as Goal | null}
               onSubmit={handleSubmit}
               onCancel={closeForm}
               saving={saving}

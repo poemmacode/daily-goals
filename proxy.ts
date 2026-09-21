@@ -30,7 +30,7 @@ export default async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  const isPublic = pathname === "/login" || pathname.startsWith("/auth/");
+  const isPublic = pathname === "/login" || pathname.startsWith("/auth/") || pathname.startsWith("/blog") || pathname.startsWith("/topics") || pathname === "/resources";
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
@@ -39,6 +39,13 @@ export default async function proxy(request: NextRequest) {
   if (user && pathname === "/login") {
     const url = request.nextUrl.clone();
     url.pathname = "/";
+    return NextResponse.redirect(url);
+  }
+
+  // Admin routes require pro tier (checked in page components)
+  if (pathname.startsWith("/admin") && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
     return NextResponse.redirect(url);
   }
 

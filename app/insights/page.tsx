@@ -3,153 +3,179 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import type { DailyLog, Goal } from "@/lib/types";
-import { addDays, isGoalActiveOn, toLocalDateKey } from "@/lib/dates";
+import type { DailyLog, Goal, GoalMiss } from "@/lib/types";
+import { toLocalDateKey } from "@/lib/dates";
 import { useLang } from "@/lib/i18n";
+import { generateInsights, getGoalInsights, type BehavioralInsights } from "@/lib/analytics/insights";
+import { GoalHealthBadge } from "@/components/GoalHealthBadge";
+import { ContributionGraph } from "@/components/ContributionGraph";
 
-interface DayStat {
-  date: string;
-  total: number;
-  done: number;
-}
-
-interface GoalStat {
-  goal: Goal;
-  elapsed: number;
-  done: number;
-  plannedMinutes: number;
-  actualMinutes: number;
-}
-
-const HISTORY_DAYS = 30;
+const HISTORY_DAYS = 90;
 
 export default function InsightsPage() {
-  const [streak, setStreak] = useState(0);
-  const [history, setHistory] = useState<DayStat[]>([]);
-  const [goalStats, setGoalStats] = useState<GoalStat[]>([]);
+  const [insights, setInsights] = useState<BehavioralInsights | null>(null);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [logs, setLogs] = useState<DailyLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const { t } = useLang();
+  const { lang, t } = useLang();
+  const todayKey = toLocalDateKey();
 
   useEffect(() => {
     (async () => {
       const supabase = createClient();
-      const today = toLocalDateKey();
-      const start = addDays(today, -(HISTORY_DAYS - 1));
-
-      const [{ data: goals }, { data: logs }] = await Promise.all([
+      const [{ data: goalsData }, { data: logsData }, { data: missesData }] = await Promise.all([
         supabase.from("goals").select("*"),
-        supabase.from("goal_daily_logs").select("*").gte("log_date", start).lte("log_date", today),
+        supabase.from("goal_daily_logs").select("*"),
+        supabase.from("goal_misses").select("*"),
       ]);
-      const allGoals = (goals as Goal[] | null) ?? [];
-      const allLogs = (logs as DailyLog[] | null) ?? [];
-      const logsByDay = new Map<string, DailyLog[]>();
-      for (const l of allLogs) {
-        const arr = logsByDay.get(l.log_date) ?? [];
-        arr.push(l);
-        logsByDay.set(l.log_date, arr);
-      }
 
-      // Historial por día: vigentes vs completados.
-      const days: DayStat[] = [];
-      for (let i = HISTORY_DAYS - 1; i >= 0; i--) {
-        const date = addDays(today, -i);
-        const vigentes = allGoals.filter((g) => isGoalActiveOn(g, date) && g.created_at.slice(0, 10) <= date);
-        const done = (logsByDay.get(date) ?? []).filter((l) => l.completed).length;
-        days.push({ date, total: vigentes.length, done: Math.min(done, vigentes.length) });
-      }
+      const allGoals = (goalsData as Goal[] | null) ?? [];
+      const allLogs = (logsData as DailyLog[] | null) ?? [];
+      const allMisses = (missesData as GoalMiss[] | null) ?? [];
 
-      // Racha: días consecutivos al 100% terminando hoy (o ayer si hoy va incompleto).
-      let s = 0;
-      const ordered = [...days].reverse();
-      if (ordered[0].total > 0 && ordered[0].done < ordered[0].total) ordered.shift();
-      for (const d of ordered) {
-        if (d.total === 0) continue;
-        if (d.done >= d.total) s++;
-        else break;
-      }
+      const result = generateInsights({
+        goals: allGoals,
+        logs: allLogs,
+        misses: allMisses,
+        todayKey,
+        lookbackDays: HISTORY_DAYS,
+      });
 
-      // Stats por objetivo.
-      const stats: GoalStat[] = allGoals
-        .filter((g) => !g.archived)
-        .map((goal) => {
-          const goalLogs = allLogs.filter((l) => l.goal_id === goal.id);
-          let elapsed = 0;
-          for (let i = HISTORY_DAYS - 1; i >= 0; i--) {
-            const date = addDays(today, -i);
-            if (isGoalActiveOn(goal, date) && goal.created_at.slice(0, 10) <= date) elapsed++;
-          }
-          return {
-            goal,
-            elapsed,
-            done: goalLogs.filter((l) => l.completed).length,
-            plannedMinutes: elapsed * goal.allocated_minutes,
-            actualMinutes: Math.round(goalLogs.reduce((a, l) => a + l.time_spent_seconds, 0) / 60),
-          };
-        });
-
-      setHistory(days);
-      setStreak(s);
-      setGoalStats(stats);
+      setGoals(allGoals);
+      setLogs(allLogs);
+      setInsights(result);
       setLoading(false);
     })();
-  }, []);
+  }, [todayKey]);
+
+  const activeGoals = goals.filter((g) => !g.archived);
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-6">
-      <h1 className="text-2xl font-bold">{t.insights.title}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">{t.insights.title}</h1>
+        <Link
+          href="/weekly-review"
+          className="rounded-xl border border-zinc-300 px-3 py-1.5 text-sm font-medium hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-900"
+        >
+          {lang === "es" ? "📅 Resumen Semanal" : "📅 Weekly Review"}
+        </Link>
+      </div>
 
       {loading ? (
         <p className="mt-8 text-center text-zinc-500">{t.insights.calculating}</p>
-      ) : (
+      ) : insights ? (
         <>
-          <div className="mt-4 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 p-5 text-white">
-            <p className="text-sm opacity-90">{t.insights.streak}</p>
-            <p className="text-4xl font-bold">🔥 {streak} {streak === 1 ? t.insights.day : t.insights.days}</p>
-            <p className="text-xs opacity-80">{t.insights.consecutive100}</p>
+          {/* Streak + Completion rate */}
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 p-5 text-white">
+              <p className="text-sm opacity-90">{t.insights.streak}</p>
+              <p className="text-4xl font-bold">🔥 {insights.streak} {insights.streak === 1 ? t.insights.day : t.insights.days}</p>
+              <p className="text-xs opacity-80">{lang === "es" ? "mejor racha: " : "longest: "}{insights.longestStreak}</p>
+            </div>
+            <div className="rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-white">
+              <p className="text-sm opacity-90">{lang === "es" ? "Tasa completado" : "Completion rate"}</p>
+              <p className="text-4xl font-bold">{insights.completionRate}%</p>
+              <p className="text-xs opacity-80">
+                {insights.trend === "improving" ? "↑ " : insights.trend === "declining" ? "↓ " : "→ "}
+                {insights.trend === "improving" ? (lang === "es" ? "Mejorando" : "Improving") :
+                 insights.trend === "declining" ? (lang === "es" ? "Bajando" : "Declining") :
+                 (lang === "es" ? "Estable" : "Stable")}
+              </p>
+            </div>
           </div>
 
-          <h2 className="mt-8 font-semibold">{t.insights.lastDays(HISTORY_DAYS)}</h2>
-          <div className="mt-3 grid grid-cols-10 gap-1.5">
-            {history.map((d) => {
-              const pct = d.total === 0 ? -1 : d.done / d.total;
-              const bg =
-                pct < 0 ? "bg-zinc-100 dark:bg-zinc-900"
-                : pct >= 1 ? "bg-green-500"
-                : pct >= 0.5 ? "bg-green-300 dark:bg-green-800"
-                : pct > 0 ? "bg-green-100 dark:bg-green-950"
-                : "bg-zinc-200 dark:bg-zinc-800";
-              return <div key={d.date} title={`${d.date}: ${d.done}/${d.total}`} className={`aspect-square rounded ${bg}`} />;
-            })}
+          {/* Quick stats */}
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <div className="rounded-xl border border-zinc-200 p-3 text-center dark:border-zinc-800">
+              <p className="text-xs text-zinc-500">{lang === "es" ? "Adherencia" : "Adherence"}</p>
+              <p className="text-xl font-bold">{insights.scheduleAdherence}%</p>
+            </div>
+            <div className="rounded-xl border border-zinc-200 p-3 text-center dark:border-zinc-800">
+              <p className="text-xs text-zinc-500">{lang === "es" ? "Fallos" : "Misses"}</p>
+              <p className="text-xl font-bold">{insights.recentMisses}</p>
+            </div>
+            <div className="rounded-xl border border-zinc-200 p-3 text-center dark:border-zinc-800">
+              <p className="text-xs text-zinc-500">{lang === "es" ? "Min/Sesión" : "Min/Session"}</p>
+              <p className="text-xl font-bold">{insights.averageSessionMinutes}</p>
+            </div>
           </div>
 
-          <h2 className="mt-8 font-semibold">{t.insights.perGoal}</h2>
+          {/* Contribution Graph */}
+          <div className="mt-6">
+            <h2 className="font-semibold">{t.insights.lastDays(HISTORY_DAYS)}</h2>
+            <div className="mt-3">
+              <ContributionGraph
+                goals={goals}
+                logs={logs}
+                days={HISTORY_DAYS}
+              />
+            </div>
+          </div>
+
+          {/* Best days */}
+          {insights.bestDays.length > 0 && (
+            <div className="mt-6">
+              <h2 className="font-semibold">{lang === "es" ? "Mejores días" : "Best days"}</h2>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {insights.bestDays.slice(0, 3).map((d) => {
+                  const dayNames = lang === "es"
+                    ? ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
+                    : ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                  return (
+                    <span key={d.day} className="rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700 dark:bg-green-950 dark:text-green-300">
+                      {dayNames[d.day]} {d.rate}%
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Common failure reasons */}
+          {insights.commonFailureReasons.length > 0 && (
+            <div className="mt-4 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
+              <h2 className="font-semibold">{lang === "es" ? "Razones de fallo" : "Miss reasons"}</h2>
+              <div className="mt-2 space-y-1">
+                {insights.commonFailureReasons.map((r) => (
+                  <div key={r.reason} className="flex items-center justify-between text-sm">
+                    <span className="capitalize">{r.reason.replace(/_/g, " ")}</span>
+                    <span className="font-medium text-zinc-500">{r.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Per-goal stats with health */}
+          <h2 className="mt-6 font-semibold">{t.insights.perGoal}</h2>
           <ul className="mt-3 flex flex-col gap-3">
-            {goalStats.map((s) => {
-              const rate = s.elapsed === 0 ? 0 : Math.round((s.done / s.elapsed) * 100);
+            {activeGoals.map((goal) => {
+              const goalInsight = getGoalInsights(goal, logs, todayKey);
               return (
-                <li key={s.goal.id} className="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
+                <li key={goal.id} className="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
                   <div className="flex items-center gap-2">
-                    <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: s.goal.color }} />
-                    <p className="flex-1 font-semibold">{s.goal.title}</p>
-                    <span className="text-sm font-bold">{rate}%</span>
+                    <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: goal.color }} />
+                    <p className="flex-1 font-semibold">{goal.title}</p>
+                    <GoalHealthBadge health={goalInsight.health} />
                   </div>
                   <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
-                    <div className="h-full rounded-full bg-indigo-500" style={{ width: `${Math.min(100, rate)}%` }} />
+                    <div className="h-full rounded-full bg-indigo-500" style={{ width: `${Math.min(100, goalInsight.completionRate)}%` }} />
                   </div>
                   <p className="mt-1 text-xs text-zinc-500">
-                    {t.insights.daysDone(s.done, s.elapsed)} · {t.insights.minVs(s.actualMinutes, s.plannedMinutes)}
+                    {goalInsight.completionRate}% · 🔥 {goalInsight.streak.current} {lang === "es" ? "días" : "days"}
                   </p>
                 </li>
               );
             })}
           </ul>
-          {goalStats.length === 0 && (
+          {activeGoals.length === 0 && (
             <p className="mt-4 text-sm text-zinc-500">
               {t.insights.noGoals} <Link href="/goals" className="font-semibold text-indigo-600">{t.insights.createOne}</Link>
             </p>
           )}
         </>
-      )}
+      ) : null}
     </main>
   );
 }
