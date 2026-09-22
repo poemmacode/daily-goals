@@ -87,6 +87,7 @@ export interface GoalExperiment {
 export interface Profile {
   id: string;
   subscription_tier: "free" | "pro";
+  is_admin: boolean;
   ai_api_key_encrypted: string | null;
   ai_provider: string | null;
   created_at: string;

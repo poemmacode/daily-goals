@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
+import type { Profile } from "@/lib/types";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,10 +14,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     const supabase = createClient();
-    supabase.auth.getUser().then(({ data }) => {
-      // For now, all authenticated users can access admin
-      // In production, check subscription_tier === 'pro' or admin role
-      setAuthorized(!!data.user);
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) {
+        setAuthorized(false);
+        return;
+      }
+      // Check if user is admin via profiles table
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", data.user.id)
+        .single();
+      setAuthorized((profile as Profile | null)?.is_admin === true);
     });
   }, []);
 
