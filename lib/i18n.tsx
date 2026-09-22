@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 export type Lang = "en" | "es";
 
 const en = {
-  nav: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings", signOut: "Sign out", openMenu: "Open menu", closeMenu: "Close menu", blog: "Blog", about: "About" },
+  nav: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings", signOut: "Sign out", openMenu: "Open menu", closeMenu: "Close menu", blog: "Blog", about: "About", login: "Login" },
   bottom: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings" },
   footer: { tagline: "Daily Goals® — gamify your routines" },
   login: {
@@ -161,7 +161,7 @@ const en = {
 export type Dict = typeof en;
 
 const es: Dict = {
-  nav: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Configuración", signOut: "Salir", openMenu: "Abrir menú", closeMenu: "Cerrar menú", blog: "Blog", about: "Acerca de" },
+  nav: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Configuración", signOut: "Salir", openMenu: "Abrir menú", closeMenu: "Cerrar menú", blog: "Blog", about: "Acerca de", login: "Iniciar sesión" },
   bottom: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Config." },
   footer: { tagline: "Daily Goals® — gamifica tus rutinas" },
   login: {
