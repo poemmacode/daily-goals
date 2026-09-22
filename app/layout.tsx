@@ -18,8 +18,35 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Daily Goals® — checklist, focus & insights",
-  description: "Gamify your daily routines: checklist with focus timer, alarm and streaks.",
+  title: "Daily Goals® | Data-Driven Habit Tracker & Productivity System",
+  description:
+    "Stop relying on streaks and start building systems. Daily Goals® uses data, failure tracking, and AI to help you achieve your goals through actionable insights.",
+  openGraph: {
+    title: "Daily Goals® | Data-Driven Habit Tracker & Productivity System",
+    description:
+      "Stop relying on streaks and start building systems. Daily Goals® uses data, failure tracking, and AI to help you achieve your goals through actionable insights.",
+    images: [
+      {
+        url: "/thumbnail-json-strucuted-data-goal-tracker.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Daily Goals® — data-driven habit tracker",
+      },
+    ],
+    type: "website",
+    siteName: "Daily Goals®",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Daily Goals® | Data-Driven Habit Tracker & Productivity System",
+    description:
+      "Stop relying on streaks and start building systems. Daily Goals® uses data, failure tracking, and AI to help you achieve your goals through actionable insights.",
+    images: ["/thumbnail-json-strucuted-data-goal-tracker.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
