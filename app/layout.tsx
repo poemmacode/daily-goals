@@ -17,7 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Daily Goals — checklist, focus & insights",
+  title: "Daily Goals® — checklist, focus & insights",
   description: "Gamify your daily routines: checklist with focus timer, alarm and streaks.",
 };
 

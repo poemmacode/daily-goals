@@ -47,7 +47,7 @@ export function Navbar() {
     <header className="border-b border-zinc-200 dark:border-zinc-800">
       <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
         <Link href="/" className="font-bold tracking-tight" onClick={() => setOpen(false)}>
-          🎯 Daily Goals
+          🎯 Daily Goals®
         </Link>
         <div className="flex items-center gap-2">
           <LangToggle />

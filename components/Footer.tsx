@@ -21,10 +21,12 @@ export function Footer() {
           </a>
           <span aria-hidden>·</span>
           <a
-            href="mailto:poemmaestrada@gmail.com"
+            href="https://buymeacoffee.com/nicoleonremote"
+            target="_blank"
+            rel="noopener noreferrer"
             className="font-medium text-indigo-600 hover:underline dark:text-indigo-400"
           >
-            ✉️ poemmaestrada@gmail.com
+            ☕ Buy Me a Coffee
           </a>
         </div>
       </div>

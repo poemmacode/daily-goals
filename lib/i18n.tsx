@@ -7,7 +7,7 @@ export type Lang = "en" | "es";
 const en = {
   nav: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings", signOut: "Sign out", openMenu: "Open menu", closeMenu: "Close menu" },
   bottom: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings" },
-  footer: { tagline: "Daily Goals — gamify your routines" },
+  footer: { tagline: "Daily Goals® — gamify your routines" },
   login: {
     subtitle: "Your daily routines, with focus timer and streaks.",
     password: "Password",
@@ -134,7 +134,7 @@ export type Dict = typeof en;
 const es: Dict = {
   nav: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Configuración", signOut: "Salir", openMenu: "Abrir menú", closeMenu: "Cerrar menú" },
   bottom: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Config." },
-  footer: { tagline: "Daily Goals — gamifica tus rutinas" },
+  footer: { tagline: "Daily Goals® — gamifica tus rutinas" },
   login: {
     subtitle: "Tus rutinas diarias, con timer de enfoque y rachas.",
     password: "Contraseña",

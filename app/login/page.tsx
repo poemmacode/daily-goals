@@ -73,7 +73,7 @@ export default function LoginPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4">
-      <h1 className="text-3xl font-bold">🎯 Daily Goals</h1>
+      <h1 className="text-3xl font-bold">🎯 Daily Goals®</h1>
       <p className="mt-2 text-center text-zinc-600 dark:text-zinc-400">
         {t.login.subtitle}
       </p>
