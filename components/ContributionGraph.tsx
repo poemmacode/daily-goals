@@ -116,9 +116,9 @@ export function ContributionGraph({
     : 0;
 
   return (
-    <div>
-      {/* Stats */}
-      <div className="mb-3 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+    <div className="flex flex-col gap-4 sm:flex-row">
+      {/* Stats — left column */}
+      <div className="flex shrink-0 flex-col gap-1.5 sm:w-36">
         <div className="rounded-lg bg-zinc-50 p-2 text-center dark:bg-zinc-900">
           <p className="text-[10px] text-zinc-500">{lang === "es" ? "Días activos" : "Active days"}</p>
           <p className="text-sm font-bold">{stats.daysWithGoals}</p>
@@ -137,8 +137,8 @@ export function ContributionGraph({
         </div>
       </div>
 
-      {/* Graph */}
-      <div className="grid max-w-sm grid-cols-7 gap-px">
+      {/* Graph — right column */}
+      <div className="grid flex-1 grid-cols-7 gap-px">
         {data.map((d) => {
           const pct = d.total === 0 ? -1 : d.done / d.total;
           const bg =
@@ -157,7 +157,7 @@ export function ContributionGraph({
               type="button"
               onClick={() => onDayClick?.(d.date)}
               title={`${d.date}: ${d.done}/${d.total}`}
-              className={`h-6 w-6 rounded-sm ${bg} transition-transform hover:scale-110 ${
+              className={`aspect-square rounded-sm ${bg} transition-transform hover:scale-110 ${
                 onDayClick ? "cursor-pointer" : "cursor-default"
               }`}
             />

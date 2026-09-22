@@ -12,7 +12,7 @@ export function TodayChecklist() {
   const [logs, setLogs] = useState<DailyLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
-  const { t } = useLang();
+  const { lang, t } = useLang();
   const todayKey = toLocalDateKey();
 
   useEffect(() => {
@@ -38,6 +38,11 @@ export function TodayChecklist() {
   );
   const logsMap = new Map(logs.map((l) => [l.goal_id, l]));
   const doneCount = activeGoals.filter((g) => logsMap.get(g.id)?.completed).length;
+  const completionPct = activeGoals.length === 0 ? 0 : Math.round((doneCount / activeGoals.length) * 100);
+  const remainingMinutes = activeGoals
+    .filter((g) => !logsMap.get(g.id)?.completed)
+    .reduce((a, g) => a + g.allocated_minutes, 0);
+  const loggedMinutes = Math.round(logs.reduce((a, l) => a + (l.time_spent_seconds ?? 0), 0) / 60);
 
   async function toggleGoal(goal: Goal) {
     const existing = logsMap.get(goal.id);
@@ -90,6 +95,22 @@ export function TodayChecklist() {
           {t.today.completedOf(doneCount, activeGoals.length)}
         </span>
       </div>
+
+      {activeGoals.length > 0 && (
+        <div className="mt-4">
+          <div className="h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+            <div
+              className="h-full rounded-full bg-indigo-500 transition-all"
+              style={{ width: `${completionPct}%` }}
+            />
+          </div>
+          <div className="mt-2 flex items-center gap-4 text-xs text-zinc-500">
+            <span>{completionPct}%</span>
+            <span>⏱ {loggedMinutes} {t.today.min} {lang === "es" ? "registrados" : "logged"}</span>
+            <span>⏳ {remainingMinutes} {t.today.min} {lang === "es" ? "restantes" : "remaining"}</span>
+          </div>
+        </div>
+      )}
 
       {activeGoals.length === 0 ? (
         <div className="mt-12 text-center">
