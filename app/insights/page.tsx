@@ -67,16 +67,16 @@ export default function InsightsPage() {
       ) : insights ? (
         <>
           {/* Streak + Completion rate */}
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 p-5 text-white">
-              <p className="text-sm opacity-90">{t.insights.streak}</p>
-              <p className="text-4xl font-bold">🔥 {insights.streak} {insights.streak === 1 ? t.insights.day : t.insights.days}</p>
-              <p className="text-xs opacity-80">{lang === "es" ? "mejor racha: " : "longest: "}{insights.longestStreak}</p>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <div className="rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 p-3 text-white">
+              <p className="text-xs opacity-90">{t.insights.streak}</p>
+              <p className="text-2xl font-bold">🔥 {insights.streak} {insights.streak === 1 ? t.insights.day : t.insights.days}</p>
+              <p className="text-[10px] opacity-80">{lang === "es" ? "mejor racha: " : "longest: "}{insights.longestStreak}</p>
             </div>
-            <div className="rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 p-5 text-white">
-              <p className="text-sm opacity-90">{lang === "es" ? "Tasa completado" : "Completion rate"}</p>
-              <p className="text-4xl font-bold">{insights.completionRate}%</p>
-              <p className="text-xs opacity-80">
+            <div className="rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 p-3 text-white">
+              <p className="text-xs opacity-90">{lang === "es" ? "Tasa completado" : "Completion rate"}</p>
+              <p className="text-2xl font-bold">{insights.completionRate}%</p>
+              <p className="text-[10px] opacity-80">
                 {insights.trend === "improving" ? "↑ " : insights.trend === "declining" ? "↓ " : "→ "}
                 {insights.trend === "improving" ? (lang === "es" ? "Mejorando" : "Improving") :
                  insights.trend === "declining" ? (lang === "es" ? "Bajando" : "Declining") :
@@ -86,18 +86,18 @@ export default function InsightsPage() {
           </div>
 
           {/* Quick stats */}
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <div className="rounded-xl border border-zinc-200 p-3 text-center dark:border-zinc-800">
-              <p className="text-xs text-zinc-500">{lang === "es" ? "Adherencia" : "Adherence"}</p>
-              <p className="text-xl font-bold">{insights.scheduleAdherence}%</p>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="rounded-lg border border-zinc-200 p-2 text-center dark:border-zinc-800">
+              <p className="text-[10px] text-zinc-500">{lang === "es" ? "Adherencia" : "Adherence"}</p>
+              <p className="text-lg font-bold">{insights.scheduleAdherence}%</p>
             </div>
-            <div className="rounded-xl border border-zinc-200 p-3 text-center dark:border-zinc-800">
-              <p className="text-xs text-zinc-500">{lang === "es" ? "Fallos" : "Misses"}</p>
-              <p className="text-xl font-bold">{insights.recentMisses}</p>
+            <div className="rounded-lg border border-zinc-200 p-2 text-center dark:border-zinc-800">
+              <p className="text-[10px] text-zinc-500">{lang === "es" ? "Fallos" : "Misses"}</p>
+              <p className="text-lg font-bold">{insights.recentMisses}</p>
             </div>
-            <div className="rounded-xl border border-zinc-200 p-3 text-center dark:border-zinc-800">
-              <p className="text-xs text-zinc-500">{lang === "es" ? "Min/Sesión" : "Min/Session"}</p>
-              <p className="text-xl font-bold">{insights.averageSessionMinutes}</p>
+            <div className="rounded-lg border border-zinc-200 p-2 text-center dark:border-zinc-800">
+              <p className="text-[10px] text-zinc-500">{lang === "es" ? "Min/Sesión" : "Min/Session"}</p>
+              <p className="text-lg font-bold">{insights.averageSessionMinutes}</p>
             </div>
           </div>
 
@@ -134,11 +134,11 @@ export default function InsightsPage() {
 
           {/* Common failure reasons */}
           {insights.commonFailureReasons.length > 0 && (
-            <div className="mt-4 rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
-              <h2 className="font-semibold">{lang === "es" ? "Razones de fallo" : "Miss reasons"}</h2>
-              <div className="mt-2 space-y-1">
+            <div className="mt-3 rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
+              <h2 className="text-sm font-semibold">{lang === "es" ? "Razones de fallo" : "Miss reasons"}</h2>
+              <div className="mt-1.5 space-y-0.5">
                 {insights.commonFailureReasons.map((r) => (
-                  <div key={r.reason} className="flex items-center justify-between text-sm">
+                  <div key={r.reason} className="flex items-center justify-between text-xs">
                     <span className="capitalize">{r.reason.replace(/_/g, " ")}</span>
                     <span className="font-medium text-zinc-500">{r.count}</span>
                   </div>
@@ -148,21 +148,21 @@ export default function InsightsPage() {
           )}
 
           {/* Per-goal stats with health */}
-          <h2 className="mt-6 font-semibold">{t.insights.perGoal}</h2>
-          <ul className="mt-3 flex flex-col gap-3">
+          <h2 className="mt-5 text-sm font-semibold">{t.insights.perGoal}</h2>
+          <ul className="mt-2 flex flex-col gap-2">
             {activeGoals.map((goal) => {
               const goalInsight = getGoalInsights(goal, logs, todayKey);
               return (
-                <li key={goal.id} className="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-800">
+                <li key={goal.id} className="rounded-xl border border-zinc-200 p-3 dark:border-zinc-800">
                   <div className="flex items-center gap-2">
-                    <span className="h-8 w-1.5 rounded-full" style={{ backgroundColor: goal.color }} />
-                    <p className="flex-1 font-semibold">{goal.title}</p>
+                    <span className="h-5 w-1 rounded-full" style={{ backgroundColor: goal.color }} />
+                    <p className="flex-1 text-sm font-semibold">{goal.title}</p>
                     <GoalHealthBadge health={goalInsight.health} />
                   </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-800">
                     <div className="h-full rounded-full bg-indigo-500" style={{ width: `${Math.min(100, goalInsight.completionRate)}%` }} />
                   </div>
-                  <p className="mt-1 text-xs text-zinc-500">
+                  <p className="mt-1 text-[10px] text-zinc-500">
                     {goalInsight.completionRate}% · 🔥 {goalInsight.streak.current} {lang === "es" ? "días" : "days"}
                   </p>
                 </li>

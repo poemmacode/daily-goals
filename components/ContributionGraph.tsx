@@ -118,27 +118,27 @@ export function ContributionGraph({
   return (
     <div>
       {/* Stats */}
-      <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="rounded-xl bg-zinc-50 p-3 text-center dark:bg-zinc-900">
-          <p className="text-xs text-zinc-500">{lang === "es" ? "Días activos" : "Active days"}</p>
-          <p className="text-xl font-bold">{stats.daysWithGoals}</p>
+      <div className="mb-3 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+        <div className="rounded-lg bg-zinc-50 p-1.5 text-center dark:bg-zinc-900">
+          <p className="text-[10px] text-zinc-500">{lang === "es" ? "Días activos" : "Active days"}</p>
+          <p className="text-sm font-bold">{stats.daysWithGoals}</p>
         </div>
-        <div className="rounded-xl bg-zinc-50 p-3 text-center dark:bg-zinc-900">
-          <p className="text-xs text-zinc-500">{lang === "es" ? "Completados" : "Completed"}</p>
-          <p className="text-xl font-bold">{stats.daysCompleted}</p>
+        <div className="rounded-lg bg-zinc-50 p-1.5 text-center dark:bg-zinc-900">
+          <p className="text-[10px] text-zinc-500">{lang === "es" ? "Completados" : "Completed"}</p>
+          <p className="text-sm font-bold">{stats.daysCompleted}</p>
         </div>
-        <div className="rounded-xl bg-zinc-50 p-3 text-center dark:bg-zinc-900">
-          <p className="text-xs text-zinc-500">{lang === "es" ? "Promedio" : "Average"}</p>
-          <p className="text-xl font-bold">{avgCompletion}%</p>
+        <div className="rounded-lg bg-zinc-50 p-1.5 text-center dark:bg-zinc-900">
+          <p className="text-[10px] text-zinc-500">{lang === "es" ? "Promedio" : "Average"}</p>
+          <p className="text-sm font-bold">{avgCompletion}%</p>
         </div>
-        <div className="rounded-xl bg-zinc-50 p-3 text-center dark:bg-zinc-900">
-          <p className="text-xs text-zinc-500">{lang === "es" ? "Mejor mes" : "Best month"}</p>
-          <p className="text-xl font-bold">{stats.bestMonth || "—"}</p>
+        <div className="rounded-lg bg-zinc-50 p-1.5 text-center dark:bg-zinc-900">
+          <p className="text-[10px] text-zinc-500">{lang === "es" ? "Mejor mes" : "Best month"}</p>
+          <p className="text-sm font-bold">{stats.bestMonth || "—"}</p>
         </div>
       </div>
 
       {/* Graph */}
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid max-w-xs grid-cols-7 gap-0.5">
         {data.map((d) => {
           const pct = d.total === 0 ? -1 : d.done / d.total;
           const bg =
@@ -157,7 +157,7 @@ export function ContributionGraph({
               type="button"
               onClick={() => onDayClick?.(d.date)}
               title={`${d.date}: ${d.done}/${d.total}`}
-              className={`aspect-square rounded ${bg} transition-transform hover:scale-110 ${
+              className={`h-2 w-2 rounded-sm ${bg} transition-transform hover:scale-150 ${
                 onDayClick ? "cursor-pointer" : "cursor-default"
               }`}
             />
