@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { BottomNav } from "@/components/BottomNav";
 import { Footer } from "@/components/Footer";
+import { CookieConsent } from "@/components/CookieConsent";
 import { LanguageProvider } from "@/lib/i18n";
 
 const geistSans = Geist({
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <div className="flex-1 pb-20 md:pb-0">{children}</div>
           <Footer />
           <BottomNav />
+          <CookieConsent />
         </LanguageProvider>
       </body>
     </html>
