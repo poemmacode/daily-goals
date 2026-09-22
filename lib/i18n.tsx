@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 export type Lang = "en" | "es";
 
 const en = {
-  nav: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings", signOut: "Sign out", openMenu: "Open menu", closeMenu: "Close menu" },
+  nav: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings", signOut: "Sign out", openMenu: "Open menu", closeMenu: "Close menu", blog: "Blog", about: "About" },
   bottom: { today: "Today", goals: "Goals", insights: "Insights", settings: "Settings" },
   footer: { tagline: "Daily Goals® — gamify your routines" },
   login: {
@@ -127,12 +127,41 @@ const en = {
     comingSoon: "Coming soon: API key management is in development.",
     features: "Features",
   },
+  about: {
+    title: "How Daily Goals® Works",
+    subtitle: "A goal operating system that helps you track, analyze, and improve your daily routines.",
+    whatItIs: "What is Daily Goals®?",
+    whatItIsText: "Daily Goals® is a goal-tracking web app that gamifies your daily routines. Set goals, track completions, build streaks, and gain insights into your behavioral patterns — all from your browser.",
+    features: "Core Features",
+    f1Title: "Goal Tracking",
+    f1Text: "Create goals with custom schedules, colors, and time allocations. Track daily completions with a simple checklist.",
+    f2Title: "Focus Timer",
+    f2Text: "Built-in countdown timer with pause/resume. Track time spent per goal and see your actual vs planned minutes.",
+    f3Title: "Streaks & Heatmap",
+    f3Text: "Build momentum with streak tracking. Visualize your consistency with a GitHub-style contribution heatmap.",
+    f4Title: "Goal Health Score",
+    f4Text: "A deterministic health score (healthy / at risk / struggling) based on completion rate, consistency, streak, and trend.",
+    f5Title: "Failure Analysis",
+    f5Text: "Track why you missed goals (too tired, forgot, no time, etc.) and discover patterns in your failure reasons.",
+    f6Title: "Weekly Review",
+    f6Text: "Get a data-driven summary of your week: best performing goal, items needing attention, and actionable suggestions.",
+    howItWorks: "How It Works",
+    step1: "Create your goals with a name, schedule, and time allocation.",
+    step2: "Check off goals each day and optionally log time spent.",
+    step3: "View insights, streaks, and health scores to understand your patterns.",
+    step4: "Use the weekly review to reflect and adjust your approach.",
+    templates: "Start with a Template",
+    templatesText: "Choose from 14 pre-built goal templates across categories like fitness, learning, career, and personal development. Templates include suggested schedules, time allocations, and notes.",
+    freemium: "Free & Pro",
+    freemiumText: "Daily Goals® is free to use. Pro features include advanced analytics, AI-powered coaching, and more. Bring your own OpenAI API key for AI features — no subscription required for the AI itself.",
+    cta: "Start Tracking Your Goals",
+  },
 };
 
 export type Dict = typeof en;
 
 const es: Dict = {
-  nav: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Configuración", signOut: "Salir", openMenu: "Abrir menú", closeMenu: "Cerrar menú" },
+  nav: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Configuración", signOut: "Salir", openMenu: "Abrir menú", closeMenu: "Cerrar menú", blog: "Blog", about: "Acerca de" },
   bottom: { today: "Hoy", goals: "Objetivos", insights: "Insights", settings: "Config." },
   footer: { tagline: "Daily Goals® — gamifica tus rutinas" },
   login: {
@@ -254,6 +283,35 @@ const es: Dict = {
     comingSoon: "Próximamente: la gestión de claves API está en desarrollo.",
     features: "Funciones",
   },
+  about: {
+    title: "Cómo Funciona Daily Goals®",
+    subtitle: "Un sistema operativo de objetivos que te ayuda a rastrear, analizar y mejorar tus rutinas diarias.",
+    whatItIs: "¿Qué es Daily Goals®?",
+    whatItIsText: "Daily Goals® es una app de seguimiento de objetivos que gamifica tus rutinas diarias. Crea objetivos, registra completados, construye rachas y obtén información sobre tus patrones de comportamiento — todo desde tu navegador.",
+    features: "Funciones Principales",
+    f1Title: "Seguimiento de Objetivos",
+    f1Text: "Crea objetivos con horarios personalizados, colores y asignación de tiempo. Registra completados diarios con una simple lista de verificación.",
+    f2Title: "Timer de Enfoque",
+    f2Text: "Cuenta regresiva incorporada con pausa/reanudación. Registra el tiempo por objetivo y compara lo planeado vs lo real.",
+    f3Title: "Rachas y Mapa de Calor",
+    f3Text: "Construye impulso con seguimiento de rachas. Visualiza tu consistencia con un mapa de calor estilo GitHub.",
+    f4Title: "Puntuación de Salud",
+    f4Text: "Una puntuación determinista (saludable / en riesgo / fallando) basada en tasa de completado, consistencia, racha y tendencia.",
+    f5Title: "Análisis de Fallos",
+    f5Text: "Registra por qué fallaste (cansado, olvidado, sin tiempo, etc.) y descubre patrones en tus razones de fallo.",
+    f6Title: "Resumen Semanal",
+    f6Text: "Obtén un resumen basado en datos de tu semana: mejor objetivo, áreas que necesitan atención y sugerencias accionables.",
+    howItWorks: "Cómo Funciona",
+    step1: "Crea tus objetivos con nombre, horario y asignación de tiempo.",
+    step2: "Marca los objetivos cada día y opcionalmente registra el tiempo invertido.",
+    step3: "Consulta insights, rachas y puntuaciones de salud para entender tus patrones.",
+    step4: "Usa el resumen semanal para reflexionar y ajustar tu enfoque.",
+    templates: "Comienza con una Plantilla",
+    templatesText: "Elige entre 14 plantillas predefinidas en categorías como fitness, aprendizaje, carrera y desarrollo personal. Incluyen horarios sugeridos, asignación de tiempo y notas.",
+    freemium: "Gratis y Pro",
+    freemiumText: "Daily Goals® es gratis. Las funciones Pro incluyen análisis avanzados, coaching con IA y más. Usa tu propia clave API de OpenAI para funciones de IA — sin suscripción para la IA.",
+    cta: "Empieza a Rastrear tus Objetivos",
+  },
 };
 
 const DICTS: Record<Lang, Dict> = { en, es };
@@ -298,21 +356,16 @@ export function useLang() {
 
 export function LangToggle() {
   const { lang, setLang } = useLang();
+  const next = lang === "en" ? "es" : "en";
   return (
-    <div className="flex items-center gap-1 rounded-lg bg-zinc-100 p-0.5 text-xs font-semibold dark:bg-zinc-900">
-      {(["en", "es"] as const).map((l) => (
-        <button
-          key={l}
-          type="button"
-          onClick={() => setLang(l)}
-          aria-pressed={lang === l}
-          className={`rounded-md px-2 py-1 uppercase ${
-            lang === l ? "bg-white shadow dark:bg-zinc-700" : "text-zinc-500"
-          }`}
-        >
-          {l}
-        </button>
-      ))}
-    </div>
+    <button
+      type="button"
+      onClick={() => setLang(next)}
+      className="rounded-lg bg-zinc-100 px-2 py-1 text-xs font-bold uppercase text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+      aria-label={`Switch to ${next}`}
+      title={next === "es" ? "Cambiar a español" : "Switch to English"}
+    >
+      {lang}
+    </button>
   );
 }

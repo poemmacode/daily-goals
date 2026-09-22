@@ -18,6 +18,10 @@ export function Navbar() {
     { href: "/insights", label: t.nav.insights },
     { href: "/settings", label: t.nav.settings },
   ];
+  const PUBLIC_LINKS = [
+    { href: "/blog", label: t.nav.blog },
+    { href: "/about", label: t.nav.about },
+  ];
 
   useEffect(() => {
     const supabase = createClient();
@@ -50,11 +54,15 @@ export function Navbar() {
           🎯 Daily Goals®
         </Link>
         <div className="flex items-center gap-2">
-          <LangToggle />
           {/* Desktop */}
           {loggedIn && (
             <nav className="hidden items-center gap-1 md:flex">
               {LINKS.map((l) => (
+                <Link key={l.href} href={l.href} className={linkCls(l.href)}>
+                  {l.label}
+                </Link>
+              ))}
+              {PUBLIC_LINKS.map((l) => (
                 <Link key={l.href} href={l.href} className={linkCls(l.href)}>
                   {l.label}
                 </Link>
@@ -67,6 +75,16 @@ export function Navbar() {
               </button>
             </nav>
           )}
+          {!loggedIn && (
+            <nav className="hidden items-center gap-1 md:flex">
+              {PUBLIC_LINKS.map((l) => (
+                <Link key={l.href} href={l.href} className={linkCls(l.href)}>
+                  {l.label}
+                </Link>
+              ))}
+            </nav>
+          )}
+          <LangToggle />
           {/* Mobile burger */}
           {loggedIn && (
             <button
@@ -93,12 +111,25 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
-          <button
-            onClick={signOut}
-            className="rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900"
-          >
-            {t.nav.signOut}
-          </button>
+          {PUBLIC_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setOpen(false)}
+              className={`${linkCls(l.href)} block py-2.5`}
+            >
+              {l.label}
+            </Link>
+          ))}
+          <div className="mt-2 flex items-center justify-between border-t border-zinc-200 pt-3 dark:border-zinc-800">
+            <button
+              onClick={signOut}
+              className="rounded-lg px-3 py-2.5 text-left text-sm text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-900"
+            >
+              {t.nav.signOut}
+            </button>
+            <LangToggle />
+          </div>
         </nav>
       )}
     </header>
