@@ -24,7 +24,7 @@ interface DayData {
 export function ContributionGraph({
   goals,
   logs,
-  days = 90,
+  days = 30,
   filterGoalId = null,
   filterCategory = null,
   onDayClick,

@@ -10,7 +10,7 @@ import { generateInsights, getGoalInsights, type BehavioralInsights } from "@/li
 import { GoalHealthBadge } from "@/components/GoalHealthBadge";
 import { ContributionGraph } from "@/components/ContributionGraph";
 
-const HISTORY_DAYS = 90;
+const HISTORY_DAYS = 30;
 
 export default function InsightsPage() {
   const [insights, setInsights] = useState<BehavioralInsights | null>(null);
