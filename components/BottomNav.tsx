@@ -47,7 +47,7 @@ function SettingsIcon({ active }: { active: boolean }) {
 }
 
 const TABS = [
-  { href: "/", key: "today" as const, Icon: CalendarCheckIcon },
+  { href: "/today", key: "today" as const, Icon: CalendarCheckIcon },
   { href: "/goals", key: "goals" as const, Icon: TargetIcon },
   { href: "/insights", key: "insights" as const, Icon: PieIcon },
   { href: "/settings", key: "settings" as const, Icon: SettingsIcon },

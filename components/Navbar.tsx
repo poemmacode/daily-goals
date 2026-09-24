@@ -25,7 +25,7 @@ export function Navbar() {
   const { t } = useLang();
 
   const LINKS = [
-    { href: "/", label: t.nav.today },
+    { href: "/today", label: t.nav.today },
     { href: "/goals", label: t.nav.goals },
     { href: "/insights", label: t.nav.insights },
   ];
