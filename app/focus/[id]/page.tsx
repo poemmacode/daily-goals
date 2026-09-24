@@ -62,7 +62,7 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
       if (finished) {
         // Completado automático: sin confirmación manual, regresa al día.
         setSavedMsg(t.focus.savedDone);
-        setTimeout(() => router.push("/"), 3000);
+        setTimeout(() => router.push("/today"), 3000);
       } else {
         setSavedMsg(t.focus.savedTime(Math.round(elapsedSeconds / 60)));
       }
@@ -75,13 +75,13 @@ export default function FocusPage({ params }: { params: Promise<{ id: string }> 
     return (
       <main className="mx-auto max-w-2xl px-4 py-16 text-center">
         <p>{t.focus.notFound}</p>
-        <Link href="/" className="font-semibold text-indigo-600">{t.focus.backToday}</Link>
+        <Link href="/today" className="font-semibold text-indigo-600">{t.focus.backToday}</Link>
       </main>
     );
 
   return (
     <main className="mx-auto flex max-w-2xl flex-col items-center px-4 py-8">
-      <button onClick={() => router.push("/")} className="self-start text-sm text-zinc-500 hover:underline">
+      <button onClick={() => router.push("/today")} className="self-start text-sm text-zinc-500 hover:underline">
         {t.focus.back}
       </button>
       <span className="mt-4 h-2 w-24 rounded-full" style={{ backgroundColor: goal.color }} />

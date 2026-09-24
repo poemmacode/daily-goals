@@ -4,14 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import type { Goal, DailyLog } from "@/lib/types";
-import { toLocalDateKey, isGoalActiveOn } from "@/lib/dates";
+import { toLocalDateKey, isGoalActiveOn, formatSeconds } from "@/lib/dates";
 import { useLang } from "@/lib/i18n";
+import { readFocusSession, sessionRemaining, isSessionExpired } from "@/lib/focus-session";
 
 export function TodayChecklist() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [logs, setLogs] = useState<DailyLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [focusSession, setFocusSession] = useState(() => readFocusSession());
   const { lang, t } = useLang();
   const todayKey = toLocalDateKey();
 
@@ -33,10 +35,17 @@ export function TodayChecklist() {
     return () => { cancelled = true; };
   }, [todayKey]);
 
+  // Poll focus session every 2s to update remaining time
+  useEffect(() => {
+    const id = setInterval(() => setFocusSession(readFocusSession()), 2000);
+    return () => clearInterval(id);
+  }, []);
+
   const activeGoals = goals.filter(
     (g) => !g.archived && isGoalActiveOn(g, todayKey) && g.created_at.slice(0, 10) <= todayKey,
   );
   const logsMap = new Map(logs.map((l) => [l.goal_id, l]));
+  const activeFocusGoalId = focusSession && !isSessionExpired(focusSession) ? focusSession.goalId : null;
   const doneCount = activeGoals.filter((g) => logsMap.get(g.id)?.completed).length;
   const completionPct = activeGoals.length === 0 ? 0 : Math.round((doneCount / activeGoals.length) * 100);
   const remainingMinutes = activeGoals
@@ -160,12 +169,18 @@ export function TodayChecklist() {
                     )}
                   </p>
                 </div>
-                <Link
-                  href={`/focus/${goal.id}`}
-                  className="shrink-0 rounded-lg bg-indigo-100 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-900"
-                >
-                  {t.today.focus}
-                </Link>
+                {goal.id === activeFocusGoalId ? (
+                  <span className="shrink-0 rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                    ⏱ {formatSeconds(sessionRemaining(focusSession!))} {lang === "es" ? "restantes" : "remaining"}
+                  </span>
+                ) : (
+                  <Link
+                    href={`/focus/${goal.id}`}
+                    className="shrink-0 rounded-lg bg-indigo-100 px-3 py-1.5 text-xs font-semibold text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-900"
+                  >
+                    {t.today.focus}
+                  </Link>
+                )}
               </li>
             );
           })}
