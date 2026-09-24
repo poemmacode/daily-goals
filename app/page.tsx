@@ -2,31 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useLang } from "@/lib/i18n";
-import { TodayChecklist } from "@/components/TodayChecklist";
 
 export default function HomePage() {
   const { lang } = useLang();
-  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
 
-  useEffect(() => {
-    const supabase = createClient();
-    supabase.auth.getSession().then(({ data }) => setLoggedIn(!!data.session));
-  }, []);
-
-  // Loading state
-  if (loggedIn === null) {
-    return <main className="mx-auto max-w-2xl px-4 py-6"><p className="mt-8 text-center text-zinc-500">{lang === "es" ? "Cargando..." : "Loading..."}</p></main>;
-  }
-
-  // Logged in → Today checklist
-  if (loggedIn) {
-    return <TodayChecklist />;
-  }
-
-  // Not logged in → Landing page
   return (
     <>
       {/* JSON-LD Structured Data */}
