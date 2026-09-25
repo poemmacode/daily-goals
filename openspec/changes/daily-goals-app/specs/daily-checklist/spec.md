@@ -1,14 +1,14 @@
 ## Purpose
 
-Checklist diario auto-generado a partir de los objetivos vigentes: muestra qué hacer hoy, permite marcar completado y calcula el porcentaje de cumplimiento del día sin necesidad de reinicios manuales.
+Checklist diario auto-generado a partir de los objetivos vigentes en la ruta `/today`: muestra qué hacer hoy, permite marcar completado, calcula el porcentaje de cumplimiento del día y muestra el estado de focus en tiempo real sin necesidad de reinicios manuales.
 
 ## ADDED Requirements
 
-### Requirement: Generar checklist del día
-El sistema SHALL mostrar cada día solo los objetivos vigentes para esa fecha, cada uno con su checkbox en estado pendiente salvo que ya exista un log completado para hoy.
+### Requirement: Generar checklist del día en /today
+El sistema SHALL mostrar cada día solo los objetivos vigentes para esa fecha en la ruta `/today`, cada uno con su checkbox en estado pendiente salvo que ya exista un log completado para hoy.
 
 #### Scenario: Abrir la app un día nuevo
-- WHEN el usuario abre la app en una fecha sin logs previos
+- WHEN el usuario abre `/today` en una fecha sin logs previos
 - THEN todos los objetivos vigentes aparecen con checkbox desactivado y el progreso del día es 0%.
 
 #### Scenario: Checklist filtra por vigencia
@@ -30,15 +30,34 @@ El sistema SHALL calcular y mostrar el porcentaje `completados / vigentes * 100`
 - THEN el indicador muestra 75% inmediatamente tras cada cambio.
 
 ### Requirement: Tiempo total estimado y restante del día
-El sistema SHALL mostrar en la vista principal el tiempo total estimado (suma de minutos asignados de los vigentes) en grande y azul, y el tiempo restante para concluir (descontando lo completado y los minutos ya registrados) en grande y naranja, recalculados en tiempo real.
+El sistema SHALL mostrar en la vista principal el tiempo total estimado (suma de minutos asignados de los vigentes) y el tiempo restante para concluir (descontando lo completado y los minutos ya registrados), recalculados en tiempo real.
 
 #### Scenario: Ver tiempos del día
 - WHEN hay 2 objetivos vigentes de 30 y 60 min y uno de 30 ya completado
-- THEN el total muestra 90 min en azul y el restante 60 min en naranja.
+- THEN el total muestra 90 min y el restante 60 min.
 
-### Requirement: Bloqueo del goal con sesión en curso
-El sistema SHALL deshabilitar el checkbox y reemplazar el botón Focus por "In progress" deshabilitado en el goal con cronómetro corriendo o pausado, sin afectar a los demás goals.
+### Requirement: Badge "In Progress" con tiempo restante
+El sistema SHALL mostrar un badge "⏱ X:XX restantes" en vez del botón Focus para el goal que tenga una sesión de focus activa (running o paused). El badge SHALL ser un link clicable a `/focus/[goalId]`.
 
-#### Scenario: Intentar marcar goal en curso
-- WHEN hay una sesión activa en un objetivo y el usuario abre la vista diaria
-- THEN ese objetivo muestra "In progress", su check está deshabilitado y los demás siguen operables.
+#### Scenario: Goal con sesión activa
+- WHEN hay una sesión de focus activa para el goal "Leer" con 14:32 restantes
+- THEN el goal "Leer" muestra badge `⏱ 14:32 restantes` clicable en vez del botón "Focus".
+
+#### Scenario: Actualización en tiempo real
+- WHEN el badge se muestra
+- THEN el tiempo restante se actualiza cada 2 segundos reflejando el countdown real.
+
+#### Scenario: Click en badge
+- WHEN el usuario hace click en el badge "In Progress"
+- THEN navega a `/focus/[goalId]` para ver el timer completo.
+
+### Requirement: Redirect a /today desde focus
+El sistema SHALL redirigir a `/today` (no a `/`) cuando el timer de focus termina, cuando el goal no se encuentra, y cuando se presiona el botón "Back" en la vista focus.
+
+#### Scenario: Timer termina
+- WHEN el countdown llega a 00:00
+- THEN después de 3 segundos redirige a `/today` mostrando el checklist actualizado.
+
+#### Scenario: Botón Back en focus
+- WHEN el usuario presiona "Back" en la vista focus
+- THEN navega a `/today`.

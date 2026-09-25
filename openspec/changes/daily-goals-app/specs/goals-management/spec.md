@@ -1,6 +1,6 @@
 ## Purpose
 
-Gestión del catálogo de objetivos recurrentes: el usuario define cada meta una sola vez con su vigencia y tiempo asignado, y el sistema la activa automáticamente cada día dentro del periodo.
+Gestión del catálogo de objetivos recurrentes: el usuario define cada meta una sola vez con su vigencia y tiempo asignado, y el sistema la activa automáticamente cada día dentro del periodo. Incluye 14 templates predefinidos en 6 categorías para acelerar la creación.
 
 ## ADDED Requirements
 
@@ -41,7 +41,7 @@ El sistema SHALL ofrecer login con email + contraseña (entrar y crear cuenta) a
 
 #### Scenario: Entrar con contraseña
 - WHEN el usuario entra con credenciales válidas
-- THEN aterriza en el checklist del día sin pasar por email.
+- THEN aterriza en el checklist del día (`/today`) sin pasar por email.
 
 ### Requirement: Notas y recursos por objetivo
 El sistema SHALL permitir guardar notas de texto libre por objetivo y mostrar las URLs como enlaces clicables (nueva pestaña) en la lista de objetivos y en la vista focus.
@@ -49,3 +49,14 @@ El sistema SHALL permitir guardar notas de texto libre por objetivo y mostrar la
 #### Scenario: Guardar enlace de estudio
 - WHEN el usuario guarda "Estudiar aquí: https://docs.python.org/3/tutorial/" en un goal
 - THEN el enlace aparece clicable en Objetivos y en el focus de ese goal.
+
+### Requirement: Templates predefinidos
+El sistema SHALL ofrecer 14 templates de objetivos predefinidos en 6 categorías (salud, productividad, aprendizaje, finanzas, creatividad, bienestar) que el usuario puede seleccionar para crear un objetivo rápidamente.
+
+#### Scenario: Seleccionar template
+- WHEN el usuario abre el modal de creación y selecciona el template "Leer 30 min"
+- THEN el formulario se pre-llena con título "Leer", 30 minutos, y los días activos por defecto.
+
+#### Scenario: Categoría de template
+- WHEN el usuario filtra templates por categoría "salud"
+- THEN solo se muestran los templates de esa categoría.
