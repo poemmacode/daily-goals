@@ -170,9 +170,12 @@ export function TodayChecklist() {
                   </p>
                 </div>
                 {goal.id === activeFocusGoalId ? (
-                  <span className="shrink-0 rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+                  <Link
+                    href={`/focus/${goal.id}`}
+                    className="shrink-0 rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:hover:bg-amber-900"
+                  >
                     ⏱ {formatSeconds(sessionRemaining(focusSession!))} {lang === "es" ? "restantes" : "remaining"}
-                  </span>
+                  </Link>
                 ) : (
                   <Link
                     href={`/focus/${goal.id}`}
